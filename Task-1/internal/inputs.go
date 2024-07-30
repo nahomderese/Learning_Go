@@ -20,7 +20,7 @@ func intInput(prompt string, reader io.Reader) int {
 	input := scanner.Text()
 	num, err := strconv.Atoi(strings.TrimSpace(input))
 
-	for err != nil {
+	for err != nil || num < 0 {
 		fmt.Println("Invalid input. Please enter a valid number.")
 		fmt.Println()
 		fmt.Println()
@@ -33,25 +33,6 @@ func intInput(prompt string, reader io.Reader) int {
 	return num
 }
 
-// func intInput(prompt string) int {
-// 	fmt.Println()
-// 	fmt.Println()
-// 	fmt.Print(prompt)
-// 	input, _ := reader.ReadString('\n')
-// 	num, err := strconv.Atoi(strings.TrimSpace(input))
-
-// 	for err != nil {
-// 		fmt.Println("Invalid input. Please enter a valid number.")
-// 		fmt.Println()
-// 		fmt.Println()
-// 		fmt.Print(prompt)
-// 		input, _ = reader.ReadString('\n')
-// 		num, err = strconv.Atoi(strings.TrimSpace(input))
-// 	}
-
-// 	return num
-// }
-
 func floatInput(prompt string, reader io.Reader) float64 {
 	scanner := bufio.NewScanner(reader)
 	fmt.Println()
@@ -61,7 +42,7 @@ func floatInput(prompt string, reader io.Reader) float64 {
 	input := scanner.Text()
 	num, err := strconv.ParseFloat(strings.TrimSpace(input), 64)
 
-	for err != nil {
+	for err != nil || num < 0 {
 		fmt.Println("Invalid input. Please enter a valid number.")
 		fmt.Println()
 		fmt.Println()
