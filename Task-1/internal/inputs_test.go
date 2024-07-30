@@ -24,6 +24,12 @@ func TestIntInput(t *testing.T) {
 			input:  "abc\n42\n",
 			want:   42,
 		},
+		{
+			name:   "negative number",
+			prompt: "Enter a number: ",
+			input:  "-42\n-10\n42",
+			want:   42,
+		},
 	}
 
 	for _, tt := range tests {
@@ -55,6 +61,12 @@ func TestFloatInput(t *testing.T) {
 			prompt: "Enter a number: ",
 			input:  "abc\n42.5\n",
 			want:   42.5,
+		},
+		{
+			name:   "negative number",
+			prompt: "Enter a number: ",
+			input:  "-42.5\n-10.2\n2.5",
+			want:   2.5,
 		},
 	}
 
