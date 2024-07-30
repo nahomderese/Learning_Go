@@ -13,3 +13,15 @@ Create a Go console application that allows students to calculate their average 
 - Define a method to calculate the average grade based on the entered grades.
 - Use string interpolation to display the results in a user-friendly format.
 - Write test for your code [Optional]
+
+## Task 2: Fundamentals of Go
+
+### Sub Task 1: Word Frequency Count
+
+- Write a Go function that takes a string as input and returns a dictionary containing the frequency of each word in the string. Treat words in a case-insensitive manner and ignore punctuation marks.
+- Write test for your function
+
+### Sub Task 2: Word Frequency Count
+
+- Write a Go function that takes a string as input and checks whether it is a palindrome or not. A palindrome is a word, phrase, number, or other sequence of characters that reads the same forward and backward (ignoring spaces, punctuation, and capitalization).
+- Write test for your function
