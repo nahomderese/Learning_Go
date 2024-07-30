@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Nahom-Derese/Learning_Go/Task-2/internal"
+	"github.com/Nahom-Derese/Learning_Go/Task-2/Sub-Task-1/internal"
 )
 
 func main() {
