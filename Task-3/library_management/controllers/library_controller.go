@@ -3,6 +3,7 @@ package controllers
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -10,9 +11,13 @@ import (
 	"github.com/Nahom-Derese/Learning_Go/Task-3/library_management/services"
 )
 
-var library services.LibraryCatalog = services.LibraryService{
-	Books:   []models.Book{},
-	Members: []models.Member{},
+var library services.LibraryCatalog = NewLibraryService()
+
+func NewLibraryService() services.LibraryCatalog {
+	return &services.LibraryService{
+		Books:   []models.Book{},
+		Members: []models.Member{},
+	}
 }
 
 func AddBook(reader *bufio.Reader) {
@@ -82,6 +87,9 @@ func ListAvailableBooks() {
 	for _, book := range books {
 		fmt.Printf("ID: %d, Title: %s, Author: %s\n", book.ID, book.Title, book.Author)
 	}
+	fmt.Println()
+	fmt.Println("Please press enter to continue...")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
 }
 
 func ListBorrowedBooks(reader *bufio.Reader) {

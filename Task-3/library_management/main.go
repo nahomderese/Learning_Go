@@ -13,6 +13,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
+		// fmt.Print("\033[H\033[2J")
 		fmt.Println("Library Management System")
 		fmt.Println("1. Add a new book")
 		fmt.Println("2. Remove an existing book")

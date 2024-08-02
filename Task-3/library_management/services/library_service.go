@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-3/library_management/models"
 )
@@ -20,12 +21,12 @@ type LibraryService struct {
 	Members []models.Member
 }
 
-func (service LibraryService) AddBook(book models.Book) {
+func (service *LibraryService) AddBook(book models.Book) {
 
 	service.Books = append(service.Books, book)
 }
 
-func (service LibraryService) RemoveBook(bookID int) {
+func (service *LibraryService) RemoveBook(bookID int) {
 	for i, book := range service.Books {
 		if book.ID == bookID {
 			service.Books = append(service.Books[:i], service.Books[i+1:]...)
@@ -34,7 +35,7 @@ func (service LibraryService) RemoveBook(bookID int) {
 	}
 }
 
-func (service LibraryService) BorrowBook(bookID int, memberID int) error {
+func (service *LibraryService) BorrowBook(bookID int, memberID int) error {
 
 	for i, book := range service.Books {
 		if book.ID == bookID {
@@ -50,7 +51,7 @@ func (service LibraryService) BorrowBook(bookID int, memberID int) error {
 	return errors.New("Book or Member not found")
 }
 
-func (service LibraryService) ReturnBook(bookID int, memberID int) error {
+func (service *LibraryService) ReturnBook(bookID int, memberID int) error {
 
 	for i, book := range service.Books {
 		if book.ID == bookID {
@@ -71,10 +72,11 @@ func (service LibraryService) ReturnBook(bookID int, memberID int) error {
 	return errors.New("Book not found")
 }
 
-func (service LibraryService) ListAvailableBooks() []models.Book {
+func (service *LibraryService) ListAvailableBooks() []models.Book {
 
-	var availableBooks []models.Book
+	var availableBooks []models.Book = make([]models.Book, 0)
 	for _, book := range service.Books {
+		fmt.Println(book)
 		if book.Status == "Available" {
 			availableBooks = append(availableBooks, book)
 		}
@@ -82,7 +84,7 @@ func (service LibraryService) ListAvailableBooks() []models.Book {
 	return availableBooks
 }
 
-func (service LibraryService) ListBorrowedBooks(memberID int) []models.Book {
+func (service *LibraryService) ListBorrowedBooks(memberID int) []models.Book {
 
 	for _, member := range service.Members {
 		if member.ID == memberID {
