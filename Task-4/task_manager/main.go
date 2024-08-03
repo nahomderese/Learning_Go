@@ -1,23 +1,21 @@
 package main
 
-// import "github.com/gin-gonic/gin"
-import "fmt"
+import (
+	"github.com/Nahom-Derese/Learning_Go/Task-4/task_manager/controllers"
+	"github.com/Nahom-Derese/Learning_Go/Task-4/task_manager/data"
+	"github.com/Nahom-Derese/Learning_Go/Task-4/task_manager/router"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	// r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery())
 
-	// r.GET("/")
+	taskRepo := data.NewInMemoryTaskRepository()
 
-	// r.Run(":8080")
+	taskHandler := &controllers.TaskController{TaskRepo: taskRepo}
 
-	var i interface{}
+	router.Handlers(r, taskHandler)
 
-	i = 42
-	fmt.Printf("%v, %T\n", i, i)
-
-	i = "hello"
-	fmt.Printf("%v, %T\n", i, i)
-
-	i = true
-	fmt.Printf("%v, %T\n", i, i)
+	r.Run("localhost:8080")
 }
