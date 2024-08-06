@@ -59,7 +59,7 @@ func (ctrl *TaskController) DeleteTask() gin.HandlerFunc {
 			c.JSON(404, gin.H{"error": "Task not found"})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Task deleted"})
+		c.JSON(204, gin.H{"message": "Task deleted"})
 	}
 }
 
@@ -69,7 +69,7 @@ func (ctrl *TaskController) CreateTask() gin.HandlerFunc {
 		err := c.BindJSON(&task)
 
 		if err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
