@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/data"
 	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/models"
@@ -136,17 +137,21 @@ func (ctrl *UserController) Login() gin.HandlerFunc {
 		// generate token
 		token, err := GenerateToken(userFromDB.Username, userFromDB.Role)
 
-		c.JSON(http.StatusOK, gin.H{"message": "login successful"})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
+		c.JSON(http.StatusOK, gin.H{"token": token})
 
 	}
 }
 
 func GenerateToken(username, role string) (string, error) {
-	// generate token
+
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"role":     role,
-	}).SignedString([]byte("secret"))
+	}).SignedString([]byte(os.Getenv("JWT_SECRET")))
 
 	if err != nil {
 		return "", err
