@@ -24,7 +24,8 @@ func init() {
 func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
-
+	r.Use(contentType)
+	
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	collection := client.Database("taskManager").Collection("tasks")
 
@@ -42,8 +43,14 @@ func main() {
 
 	r.Run("localhost:8080")
 }
+
 func disconnect(err error, client *mongo.Client) {
 	if err = client.Disconnect(context.TODO()); err != nil {
 		panic(err)
 	}
+}
+
+func contentType(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+	c.Next()
 }
