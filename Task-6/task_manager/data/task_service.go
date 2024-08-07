@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/models"
@@ -16,7 +17,7 @@ import (
 type TaskRepository interface {
 	Save(c context.Context, task *models.Task) (models.Task, error)
 	FindByID(c context.Context, id primitive.ObjectID) (*models.Task, error)
-	FindAll(c context.Context) []models.Task
+	FindAll(c context.Context, user models.UserRes) []models.Task
 	Delete(c context.Context, id primitive.ObjectID) error
 }
 
@@ -27,23 +28,27 @@ type MongoTaskRepository struct {
 // Delete implements TaskRepository.
 func (repo *MongoTaskRepository) Delete(c context.Context, id primitive.ObjectID) error {
 
-	_, err := repo.collection.DeleteOne(c, bson.M{"_id": id})
+	result, _ := repo.collection.DeleteOne(c, bson.M{"_id": id})
 
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return errors.New("task not found")
-		} else {
-			log.Fatal(err)
-		}
+	fmt.Println(result.DeletedCount)
+
+	if result.DeletedCount == 0 {
+		return errors.New("task not found")
 	}
 
 	return nil
 }
 
 // FindAll implements TaskRepository.
-func (repo *MongoTaskRepository) FindAll(c context.Context) []models.Task {
+func (repo *MongoTaskRepository) FindAll(c context.Context, user models.UserRes) []models.Task {
 
-	cursor, err := repo.collection.Find(c, bson.D{})
+	query := bson.D{}
+
+	if user.Role != "admin" {
+		query = bson.D{{"user_id", user.ID}}
+	}
+
+	cursor, err := repo.collection.Find(c, query)
 
 	if err != nil {
 		log.Fatal(err)
