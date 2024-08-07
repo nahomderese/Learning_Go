@@ -38,7 +38,6 @@ func UserHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
 	r.PUT("/promote/:id", ctrl.PromoteUser())
 	r.POST("/promote/:id", ctrl.PromoteUser())
 	r.GET("/promote/:id", ctrl.PromoteUser())
-	r.DELETE("", ctrl.DeleteAllUsers())
 
 }
 
