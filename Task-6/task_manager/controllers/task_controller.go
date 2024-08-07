@@ -81,11 +81,10 @@ func (ctrl *TaskController) CreateTask() gin.HandlerFunc {
 		err := c.BindJSON(&task)
 
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		id, err := primitive.ObjectIDFromHex(task.UserId)
+		id, _ := primitive.ObjectIDFromHex(task.UserId)
 		_, error := ctrl.UserRepo.FindById(id)
 
 		if error != nil {

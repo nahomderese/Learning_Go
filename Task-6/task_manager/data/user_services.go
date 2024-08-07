@@ -90,20 +90,7 @@ func (repo *MongoUserRepository) FindByUsername(username string) (models.UserRes
 	var user models.User
 	err := repo.collection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
 
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return models.UserRes{}, errors.New("user not found")
-		} else {
-			log.Fatal(err)
-		}
-	}
-
-	return models.UserRes{
-		ID:       user.ID,
-		Username: user.Username,
-		Role:     user.Role,
-	}, nil
-
+	return handleUserError(user, err)
 }
 
 // FindByID implements UserRepository.
@@ -112,20 +99,7 @@ func (repo *MongoUserRepository) FindById(id primitive.ObjectID) (models.UserRes
 	var user models.User
 	err := repo.collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&user)
 
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return models.UserRes{}, errors.New("user not found")
-		} else {
-			log.Fatal(err)
-		}
-	}
-
-	return models.UserRes{
-		ID:       user.ID,
-		Username: user.Username,
-		Role:     user.Role,
-	}, nil
-
+	return handleUserError(user, err)
 }
 
 // FindUser implements UserRepository.
@@ -143,7 +117,6 @@ func (repo *MongoUserRepository) FindUser(username string) (models.User, error) 
 	}
 
 	return user, nil
-
 }
 
 // Save implements UserRepository.
@@ -165,4 +138,22 @@ func (repo *MongoUserRepository) Save(user models.User) (models.UserRes, error) 
 
 func NewMongoUserRepository(collection *mongo.Collection) UserRepository {
 	return &MongoUserRepository{collection}
+}
+
+func handleUserError(user models.User, err error) (models.UserRes, error) {
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return models.UserRes{}, errors.New("user not found")
+		} else {
+			log.Fatal(err)
+		}
+	}
+
+	return models.UserRes{
+		ID:       user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+	}, nil
+
 }

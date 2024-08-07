@@ -14,7 +14,6 @@ import (
 
 type UserHandlers interface {
 	GetAllUsers() gin.HandlerFunc
-	DeleteAllUsers() gin.HandlerFunc
 	GetUserByUsername() gin.HandlerFunc
 	UpdateUser() gin.HandlerFunc
 	DeleteUser() gin.HandlerFunc
@@ -32,17 +31,6 @@ func (ctrl *UserController) GetAllUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		users := ctrl.UserRepo.FindAll()
 		c.JSON(200, users)
-	}
-}
-
-func (ctrl *UserController) DeleteAllUsers() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		err := ctrl.UserRepo.DeleteAll()
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "users not found"})
-			return
-		}
-		c.JSON(http.StatusAccepted, gin.H{"message": "users deleted"})
 	}
 }
 
@@ -102,6 +90,7 @@ func (ctrl *UserController) PromoteUser() gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
+
 		c.BindJSON(&user)
 
 		if user.Role == "admin" {
@@ -205,7 +194,7 @@ func (ctrl *UserController) Login() gin.HandlerFunc {
 		}
 
 		// generate token
-		token, err := GenerateToken(userFromDB.Username, userFromDB.Role)
+		token, err := GenerateToken(userFromDB.Username, userFromDB.ID.Hex())
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -217,11 +206,11 @@ func (ctrl *UserController) Login() gin.HandlerFunc {
 	}
 }
 
-func GenerateToken(username, role string) (string, error) {
+func GenerateToken(username, id string) (string, error) {
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"role":     role,
+		"id":       id,
 		"exp":      time.Now().AddDate(0, 0, 1).Unix(),
 	}).SignedString([]byte(os.Getenv("JWT_SECRET")))
 
