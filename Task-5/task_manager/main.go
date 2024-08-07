@@ -49,7 +49,6 @@ func disconnect(err error, client *mongo.Client) {
 		panic(err)
 	}
 }
-
 func contentType(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
 	c.Next()
