@@ -14,10 +14,13 @@ import (
 // TaskRepository is an interface for managing tasks.
 
 type UserRepository interface {
-	Save(user *models.User) (models.User, error)
-	FindByUsername(username string) (*models.User, error)
-	FindAll() []models.User
+	Save(user models.User) (models.UserRes, error)
+	FindByUsername(username string) (models.UserRes, error)
+	FindById(id primitive.ObjectID) (models.UserRes, error)
+	FindUser(username string) (models.User, error)
+	FindAll() []models.UserRes
 	Delete(username string) error
+	DeleteAll() error
 }
 
 type MongoUserRepository struct {
@@ -40,8 +43,21 @@ func (repo *MongoUserRepository) Delete(username string) error {
 	return nil
 }
 
+// DeleteAll implements UserRepository.
+func (repo *MongoUserRepository) DeleteAll() error {
+
+	_, err := repo.collection.DeleteMany(context.TODO(), bson.D{})
+
+	if err != nil {
+		log.Fatal(err)
+		return errors.New("error deleting all users")
+	}
+
+	return nil
+}
+
 // FindAll implements UserRepository.
-func (repo *MongoUserRepository) FindAll() []models.User {
+func (repo *MongoUserRepository) FindAll() []models.UserRes {
 
 	cursor, err := repo.collection.Find(context.TODO(), bson.D{})
 
@@ -49,49 +65,100 @@ func (repo *MongoUserRepository) FindAll() []models.User {
 		log.Fatal(err)
 	}
 
-	var users []models.User
-	if err = cursor.All(context.TODO(), &users); err != nil {
-		log.Fatal(err)
-	}
+	var users []models.UserRes
 
-	for cursor.Next(context.TODO()) {
-		var elem models.User
-		err := cursor.Decode(&elem)
+	for cursor.Next(context.Background()) {
+		var user models.User
+		err := cursor.Decode(&user)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		users = append(users, elem)
+		users = append(users, models.UserRes{
+			ID:       user.ID,
+			Username: user.Username,
+			Role:     user.Role,
+		})
 	}
 
 	return users
+
 }
 
-// FindByID implements UserRepository.
-func (repo *MongoUserRepository) FindByUsername(username string) (*models.User, error) {
+// FindByUsername implements UserRepository.
+func (repo *MongoUserRepository) FindByUsername(username string) (models.UserRes, error) {
 
 	var user models.User
 	err := repo.collection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, errors.New("user not found")
+			return models.UserRes{}, errors.New("user not found")
 		} else {
 			log.Fatal(err)
 		}
 	}
 
-	return &user, nil
+	return models.UserRes{
+		ID:       user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+	}, nil
+
+}
+
+// FindByID implements UserRepository.
+func (repo *MongoUserRepository) FindById(id primitive.ObjectID) (models.UserRes, error) {
+
+	var user models.User
+	err := repo.collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&user)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return models.UserRes{}, errors.New("user not found")
+		} else {
+			log.Fatal(err)
+		}
+	}
+
+	return models.UserRes{
+		ID:       user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+	}, nil
+
+}
+
+// FindUser implements UserRepository.
+func (repo *MongoUserRepository) FindUser(username string) (models.User, error) {
+
+	var user models.User
+	err := repo.collection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return models.User{}, errors.New("user not found")
+		} else {
+			log.Fatal(err)
+		}
+	}
+
+	return user, nil
+
 }
 
 // Save implements UserRepository.
-func (repo *MongoUserRepository) Save(user *models.User) (models.User, error) {
+func (repo *MongoUserRepository) Save(user models.User) (models.UserRes, error) {
 	user.ID = primitive.NewObjectID()
 	_, err := repo.collection.InsertOne(context.TODO(), user)
 	if err != nil {
-		return models.User{}, err
+		return models.UserRes{}, err
 	}
-	return *user, nil
+	return models.UserRes{
+		ID:       user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+	}, nil
+
 }
 
 // Constructor functions
