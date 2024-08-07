@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/data"
+	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // AuthMiddleware is a middleware that checks if the user is authenticated
@@ -40,8 +42,10 @@ func AuthMiddleware(UserRepo data.UserRepository) gin.HandlerFunc {
 				return
 			}
 
+			id, err := primitive.ObjectIDFromHex(claims["id"].(string))
+
 			// Get the user from the database
-			user, err := UserRepo.FindByUsername(claims["username"].(string))
+			user, err := UserRepo.FindById(id)
 
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
@@ -56,6 +60,24 @@ func AuthMiddleware(UserRepo data.UserRepository) gin.HandlerFunc {
 
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		c.Next()
+
+	}
+}
+
+func AdminAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		// Get the User from the context
+		user, _ := c.MustGet("user").(models.UserRes)
+
+		// Check if the user is an admin
+		if user.Role != "admin" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "only admins are authorized to perform this action"})
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
