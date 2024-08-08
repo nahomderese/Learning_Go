@@ -18,13 +18,20 @@ type UserHandlers interface {
 	GetUser() gin.HandlerFunc
 	UpdateUser() gin.HandlerFunc
 	DeleteUser() gin.HandlerFunc
+	DeleteAllUser() gin.HandlerFunc
 	PromoteUser() gin.HandlerFunc
+}
 
+type AuthHandlers interface {
 	SignUp() gin.HandlerFunc
 	Login() gin.HandlerFunc
 }
 
 type UserController struct {
+	UserRepo data.UserRepository
+}
+
+type AuthController struct {
 	UserRepo data.UserRepository
 }
 
@@ -71,7 +78,8 @@ func (ctrl *UserController) GetUserById() gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
-		c.JSON(http.StatusOK, user)
+
+		c.JSON(200, models.UserRes{ID: user.ID, Username: user.Username, Role: user.Role})
 	}
 }
 
@@ -86,11 +94,12 @@ func (ctrl *UserController) UpdateUser() gin.HandlerFunc {
 			return
 		}
 
-		user, err := ctrl.UserRepo.FindUser(username)
-		if err != nil {
+		user, exist := ctrl.UserRepo.FindByUsername(username)
+		if !exist {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
+
 		c.BindJSON(&user)
 		newUser, err := ctrl.UserRepo.Save(user)
 
@@ -105,26 +114,25 @@ func (ctrl *UserController) UpdateUser() gin.HandlerFunc {
 
 func (ctrl *UserController) PromoteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id := c.Param("id")
 
-		user, err := ctrl.UserRepo.FindUser(id)
+		username := c.Param("username")
+
+		user, err := ctrl.UserRepo.FindByUsername(username)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
 
-		c.BindJSON(&user)
-
 		if user.Role == "admin" {
-			c.JSON(http.StatusConflict, gin.H{"error": "user is already an admin"})
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "user is already an admin"})
 			return
 		}
 
 		user.Role = "admin"
-		newUser, err := ctrl.UserRepo.Save(user)
+		newUser, err := ctrl.UserRepo.Update(user)
 
 		if err != nil {
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -152,10 +160,12 @@ func (ctrl *UserController) DeleteUser() gin.HandlerFunc {
 	}
 }
 
-func (ctrl *UserController) SignUp() gin.HandlerFunc {
+func (ctrl *AuthController) SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var user models.User
-
+		var user struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}
 		err := c.BindJSON(&user)
 
 		if err != nil {
@@ -178,24 +188,23 @@ func (ctrl *UserController) SignUp() gin.HandlerFunc {
 			role = "admin"
 		}
 
-		// check if user already exists
+
+		userData := models.User{Username: user.Username, Password: string(hash), Role: role}
+		newUser, error := ctrl.UserRepo.Save(userData)
+
+    // check if user already exists
 		_, err = ctrl.UserRepo.FindUser(user.ID.Hex())
 		if err != nil {
 			c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
 			return
 		}
 
-		newUser := models.User{Username: user.Username, Password: string(hash), Role: role}
-		ctrl.UserRepo.Save(newUser)
-
-		user.Role = role
-
-		c.JSON(http.StatusOK, user)
+		c.JSON(http.StatusOK, newUser)
 
 	}
 }
 
-func (ctrl *UserController) Login() gin.HandlerFunc {
+func (ctrl *AuthController) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user struct {
 			Username string `json:"username"`
@@ -209,16 +218,16 @@ func (ctrl *UserController) Login() gin.HandlerFunc {
 		}
 
 		// get user from db
-		userFromDB, err := ctrl.UserRepo.FindUser(user.Username)
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		userFromDB, exist := ctrl.UserRepo.FindByUsername(user.Username)
+		if !exist {
+			c.JSON(http.StatusNotFound, gin.H{"error": "username or password is incorrect"})
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(userFromDB.Password), []byte(user.Password))
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid password"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password is incorrect"})
 			return
 		}
 

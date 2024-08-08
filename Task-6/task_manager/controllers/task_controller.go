@@ -25,7 +25,7 @@ type TaskController struct {
 
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user := c.MustGet("user").(models.UserRes)
+		user := c.MustGet("user").(models.User)
 		tasks := ctrl.TaskRepo.FindAll(context.TODO(), user)
 		c.JSON(200, tasks)
 	}
@@ -84,16 +84,14 @@ func (ctrl *TaskController) CreateTask() gin.HandlerFunc {
 			return
 		}
 
-		id, _ := primitive.ObjectIDFromHex(task.UserId)
-		_, error := ctrl.UserRepo.FindById(id)
+		_, e := ctrl.UserRepo.FindUser(task.UserId)
 
-		if error != nil {
+		if e != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
 
-		task.ID = primitive.NewObjectID()
-		ctrl.TaskRepo.Save(context.TODO(), &task)
+		task, err = ctrl.TaskRepo.Save(context.TODO(), task)
 		c.JSON(200, task)
 
 	}
