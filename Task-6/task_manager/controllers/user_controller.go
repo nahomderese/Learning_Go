@@ -17,7 +17,6 @@ type UserHandlers interface {
 	GetUser() gin.HandlerFunc
 	UpdateUser() gin.HandlerFunc
 	DeleteUser() gin.HandlerFunc
-	DeleteAllUser() gin.HandlerFunc
 	PromoteUser() gin.HandlerFunc
 }
 
@@ -78,8 +77,8 @@ func (ctrl *UserController) UpdateUser() gin.HandlerFunc {
 			return
 		}
 
-		user, exist := ctrl.UserRepo.FindByUsername(username)
-		if !exist {
+		user, err := ctrl.UserRepo.FindUser(username)
+		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
@@ -108,13 +107,16 @@ func (ctrl *UserController) PromoteUser() gin.HandlerFunc {
 
 		if user.Role == "admin" {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "user is already an admin"})
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": "user is already an admin"})
 			return
 		}
 
 		user.Role = "admin"
 		newUser, err := ctrl.UserRepo.Update(user)
+		newUser, err := ctrl.UserRepo.Update(user)
 
 		if err != nil {
+			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": err.Error()})
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
@@ -172,10 +174,9 @@ func (ctrl *AuthController) SignUp() gin.HandlerFunc {
 		}
 
 		// check if user already exists
-		_, exist := ctrl.UserRepo.FindByUsername(user.Username)
-
-		if exist {
-			c.JSON(http.StatusConflict, gin.H{"error": "user with this username already exists"})
+		_, err = ctrl.UserRepo.FindUser(user.ID.Hex())
+		if err != nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
 			return
 		}
 
