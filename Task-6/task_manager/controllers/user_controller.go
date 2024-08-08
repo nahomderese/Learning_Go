@@ -9,12 +9,13 @@ import (
 	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserHandlers interface {
 	GetAllUsers() gin.HandlerFunc
-	GetUserByUsername() gin.HandlerFunc
+	GetUser() gin.HandlerFunc
 	UpdateUser() gin.HandlerFunc
 	DeleteUser() gin.HandlerFunc
 	DeleteAllUser() gin.HandlerFunc
@@ -41,13 +42,34 @@ func (ctrl *UserController) GetAllUsers() gin.HandlerFunc {
 	}
 }
 
-func (ctrl *UserController) GetUserByUsername() gin.HandlerFunc {
+func (ctrl *UserController) GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		username := c.Param("username")
-		user, err := ctrl.UserRepo.FindByUsername(username)
+		users, err := ctrl.UserRepo.FindUser(c.Param("id"))
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+			return
+		}
+
+		c.JSON(200, models.UserRes{ID: users.ID, Username: users.Username, Role: users.Role})
+	}
+}
+
+func (ctrl *UserController) GetUserById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id_ := c.Param("username")
+
+		id, err := primitive.ObjectIDFromHex(id_)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+			return
+		}
+
+		user, err := ctrl.UserRepo.FindById(id)
 
 		userData, _ := c.Get("user")
-		if username != userData.(*models.User).Username {
+		if id_ != userData.(*models.User).ID.Hex() && userData.(*models.User).Role != "admin" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 			return
 		}
@@ -92,10 +114,10 @@ func (ctrl *UserController) UpdateUser() gin.HandlerFunc {
 
 func (ctrl *UserController) PromoteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		username := c.Param("username")
+
 		username := c.Param("username")
 
-		user, err := ctrl.UserRepo.FindUser(username)
+		user, err := ctrl.UserRepo.FindByUsername(username)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
@@ -166,11 +188,14 @@ func (ctrl *AuthController) SignUp() gin.HandlerFunc {
 			role = "admin"
 		}
 
+
 		userData := models.User{Username: user.Username, Password: string(hash), Role: role}
 		newUser, error := ctrl.UserRepo.Save(userData)
 
-		if error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": error.Error()})
+    // check if user already exists
+		_, err = ctrl.UserRepo.FindUser(user.ID.Hex())
+		if err != nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
 			return
 		}
 

@@ -15,9 +15,8 @@ import (
 
 type UserRepository interface {
 	Save(user models.User) (models.UserRes, error)
-	FindByUsername(username string) (models.UserRes, error)
 	FindById(id primitive.ObjectID) (models.UserRes, error)
-	FindUser(username string) (models.User, error)
+	FindUser(id string) (models.User, error)
 	FindAll() []models.UserRes
 	Delete(username string) error
 	DeleteAll() error
@@ -105,17 +104,22 @@ func (repo *MongoUserRepository) FindById(id primitive.ObjectID) (models.UserRes
 }
 
 // FindUser implements UserRepository.
-func (repo *MongoUserRepository) FindUser(username string) (models.User, error) {
+func (repo *MongoUserRepository) FindUser(id string) (models.User, error) {
 
 	var user models.User
-	err := repo.collection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+
+	_id, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return models.User{}, errors.New("user not found")
-		} else {
-			log.Fatal(err)
-		}
+		return models.User{}, errors.New("invalid id")
+	}
+
+	repo.collection.FindOne(context.TODO(), bson.M{"_id": _id}).Decode(&user)
+
+	if err == mongo.ErrNoDocuments {
+		return models.User{}, errors.New("user not found")
+	} else {
+		log.Fatal(err)
 	}
 
 	return user, nil
