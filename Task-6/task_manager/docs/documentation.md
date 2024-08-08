@@ -1,94 +1,282 @@
-# Task API Documentation
+---
+title: Task Management API Doc
+language_tabs:
+  - shell: Shell
+  - http: HTTP
+  - javascript: JavaScript
+  - ruby: Ruby
+  - python: Python
+  - php: PHP
+  - java: Java
+  - go: Go
+toc_footers: []
+includes: []
+search: true
+code_clipboard: true
+highlight_theme: darkula
+headingLevel: 2
+generator: "@tarslib/widdershins v4.0.23"
+---
 
-## Description
+# Task Management API Doc
 
-The Task API allows users to manage tasks efficiently. It provides endpoints to create, retrieve, update, and delete tasks. Users can fetch all tasks or get details of a specific task by its ID. The API also supports updating and deleting tasks by their ID. This makes it easy to integrate task management functionality into your applications.
+Base URLs:
 
-## BaseUrl
+- <a href="http://localhost:8000">Develop Env: http://localhost:8000</a>
 
-```
-http://localhost:8080
-```
+# Authentication
 
-## Endpoints
+- HTTP Authentication, scheme: bearer
 
-### Get All Tasks
+# Tasks
 
-#### Request
+## POST Create Task
 
-`GET /tasks`
+POST /tasks
 
-#### Response
-
-**Status Code:** 200 OK
-
-**Response Body:**
+> Body Parameters
 
 ```json
 {
-  "tasks": {
-    "1": {
-      "id": "1",
-      "title": "Complete Go project",
-      "description": "Finish the distributed system project in Go",
-      "due_date": "2023-08-07T12:34:56Z",
-      "status": "pending"
-    },
-    "2": {
-      "id": "2",
-      "title": "Write blog post",
-      "description": "Write a blog post about the Go project",
-      "due_date": "2023-08-14T12:34:56Z",
-      "status": "pending"
-    },
-    "3": {
-      "id": "3",
-      "title": "Update resume",
-      "description": "Add the new project details to the resume",
-      "due_date": "2023-08-03T12:34:56Z",
-      "status": "in progress"
-    }
+  "title": "Some New Task",
+  "description": "description of that Task",
+  "status": "Urgent",
+  "due_date": "2006-01-02"
+}
+```
+
+### Params
+
+| Name          | Location | Type   | Required | Description |
+| ------------- | -------- | ------ | -------- | ----------- |
+| body          | body     | object | no       | none        |
+| » title       | body     | string | yes      | none        |
+| » description | body     | string | yes      | none        |
+| » status      | body     | string | yes      | none        |
+| » due_date    | body     | string | yes      | none        |
+
+> Response Examples
+
+> Success
+
+```json
+{
+  "id": "66b3625d168fde4756c42e43",
+  "title": "Dummy Task 1",
+  "description": "description of that Dummy Task 1",
+  "due_date": "2006-01-02T15:04:05Z",
+  "status": "Urgent",
+  "user_id": "66b2ef7e61865834622b58ec"
+}
+```
+
+> Unauthorized
+
+```json
+{
+  "error": "unauthorized"
+}
+```
+
+> User Not Found
+
+```json
+{
+  "error": "user not found"
+}
+```
+
+### Responses
+
+| HTTP Status Code | Meaning                                                         | Description    | Data schema |
+| ---------------- | --------------------------------------------------------------- | -------------- | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | Success        | Inline      |
+| 401              | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1) | Unauthorized   | Inline      |
+| 404              | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)  | User Not Found | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name          | Type   | Required | Restrictions | Title | description |
+| ------------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id          | string | true     | none         |       | none        |
+| » title       | string | true     | none         |       | none        |
+| » description | string | true     | none         |       | none        |
+| » due_date    | string | true     | none         |       | none        |
+| » status      | string | true     | none         |       | none        |
+| » user_id     | string | true     | none         |       | none        |
+
+HTTP Status Code **401**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+HTTP Status Code **404**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+## GET Get All Tasks
+
+GET /tasks
+
+> Response Examples
+
+> Success
+
+```json
+[
+  {
+    "id": "66b33133cec8e35ebca9f5d6",
+    "title": "Some New Task",
+    "description": "description of that Task",
+    "due_date": "2006-01-02T15:04:05Z",
+    "status": "Urgent",
+    "user_id": "66b2ef7e61865834622b58ec"
   }
-}
+]
 ```
 
-### Get Task by ID
-
-#### Request
-
-`GET /tasks/:id`
-
-**Path Parameters:** - `id` (integer, required): The ID of the task to retrieve.
-
-#### Response
-
-**Status Code:** 200 OK
-
-**Response Body:**
+> Unauthorized
 
 ```json
 {
-  "id": "1",
-  "title": "Complete Go project",
-  "description": "Finish the distributed system project in Go",
-  "due_date": "2023-08-07T12:34:56Z",
-  "status": "pending"
+  "error": "unauthorized"
 }
 ```
 
-**Status Code:** 400 Bad# Request
+### Responses
 
-**Response Body:**
+| HTTP Status Code | Meaning                                                         | Description  | Data schema |
+| ---------------- | --------------------------------------------------------------- | ------------ | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | Success      | Inline      |
+| 401              | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1) | Unauthorized | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name          | Type   | Required | Restrictions | Title | description |
+| ------------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id          | string | false    | none         |       | none        |
+| » title       | string | false    | none         |       | none        |
+| » description | string | false    | none         |       | none        |
+| » due_date    | string | false    | none         |       | none        |
+| » status      | string | false    | none         |       | none        |
+| » user_id     | string | false    | none         |       | none        |
+
+HTTP Status Code **401**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+## GET Get Task
+
+GET /tasks/{id}
+
+### Params
+
+| Name | Location | Type   | Required | Description |
+| ---- | -------- | ------ | -------- | ----------- |
+| id   | path     | string | yes      | none        |
+
+> Response Examples
+
+> Success
 
 ```json
 {
-  "error": "invalid id"
+  "id": "66b33133cec8e35ebca9f5d6",
+  "title": "Some New Task",
+  "description": "description of that Task",
+  "due_date": "2006-01-02T15:04:05Z",
+  "status": "Urgent",
+  "user_id": "66b2ef7e61865834622b58ec"
 }
 ```
 
-**Status Code:** 404 Not Found
+> Unauthorized
 
-**Response Body:**
+```json
+{
+  "error": "unauthorized"
+}
+```
+
+> Not Found
+
+```json
+{
+  "error": "Task not found"
+}
+```
+
+### Responses
+
+| HTTP Status Code | Meaning                                                         | Description  | Data schema |
+| ---------------- | --------------------------------------------------------------- | ------------ | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | Success      | Inline      |
+| 401              | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1) | Unauthorized | Inline      |
+| 404              | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)  | Not Found    | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name          | Type   | Required | Restrictions | Title | description |
+| ------------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id          | string | true     | none         |       | none        |
+| » title       | string | true     | none         |       | none        |
+| » description | string | true     | none         |       | none        |
+| » due_date    | string | true     | none         |       | none        |
+| » status      | string | true     | none         |       | none        |
+| » user_id     | string | true     | none         |       | none        |
+
+HTTP Status Code **401**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+HTTP Status Code **404**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+## DELETE Delete Task
+
+DELETE /tasks/{id}
+
+### Params
+
+| Name | Location | Type   | Required | Description |
+| ---- | -------- | ------ | -------- | ----------- |
+| id   | path     | string | yes      | none        |
+
+> Response Examples
+
+> Success
+
+```json
+{
+  "message": "Task deleted"
+}
+```
+
+> Unauthorized
+
+```json
+{
+  "error": "unauthorized"
+}
+```
+
+> Not Found
 
 ```json
 {
@@ -96,144 +284,417 @@ http://localhost:8080
 }
 ```
 
-### Update Task
+### Responses
 
-#### Request
+| HTTP Status Code | Meaning                                                         | Description  | Data schema |
+| ---------------- | --------------------------------------------------------------- | ------------ | ----------- |
+| 202              | [Accepted](https://tools.ietf.org/html/rfc7231#section-6.3.3)   | Success      | Inline      |
+| 401              | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1) | Unauthorized | Inline      |
+| 404              | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)  | Not Found    | Inline      |
 
-`PUT /tasks/:id`
+### Responses Data Schema
 
-**Path Parameters:** - `id` (integer, required): The ID of the task to retrieve.
+HTTP Status Code **202**
 
-*#*Request Body:\*\*
+| Name      | Type   | Required | Restrictions | Title | description |
+| --------- | ------ | -------- | ------------ | ----- | ----------- |
+| » message | string | true     | none         |       | none        |
 
-```http
+HTTP Status Code **401**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+HTTP Status Code **404**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+## PUT Update Task
+
 PUT /tasks/{id}
-Content-Type: application/json
 
-{
-  "title": "New Task Title",
-  "description": "Mew description",
-  "due_date": "2020-02-21T02:04:50Z",
-  "status": "completed"
-}
-```
-
-#### Response
-
-**Status Code:** 200 OK
-
-**Response Body:**
+> Body Parameters
 
 ```json
 {
-  "title": "New Task Title",
-  "description": "Mew description",
-  "due_date": "2020-02-21T02:04:50Z",
-  "status": "completed"
+  "title": "Some New Task",
+  "description": "description of that Task",
+  "status": "Urgent",
+  "due_date": "2006-01-02T15:04:05Z",
+  "user_id": "66b2ef7e61865834622b58ec"
 }
 ```
 
-**Status Code:** 400 Bad Request
+### Params
 
-**Response Body:**
+| Name          | Location | Type   | Required | Description |
+| ------------- | -------- | ------ | -------- | ----------- |
+| id            | path     | string | yes      | none        |
+| body          | body     | object | no       | none        |
+| » title       | body     | string | yes      | none        |
+| » description | body     | string | yes      | none        |
+| » status      | body     | string | yes      | none        |
+| » due_date    | body     | string | yes      | none        |
+| » user_id     | body     | string | yes      | none        |
+
+> Response Examples
+
+> Success
 
 ```json
 {
-  "error": "id not valid"
+  "id": "66b3638e168fde4756c42e44",
+  "title": "Some New Task",
+  "description": "description of that Task",
+  "due_date": "2006-01-02T15:04:05Z",
+  "status": "Urgent",
+  "user_id": "66b2ef7e61865834622b58ec"
 }
 ```
 
-**Status Code:** 404 Not Found
-
-**Response Body:**
+> Unauthorized
 
 ```json
 {
-  "error": "task not found"
+  "error": "unauthorized"
 }
 ```
 
-### Delete Task
-
-#### Request
-
-`DELETE /tasks/:id`
-
-**Path Parameters:** - `id` (integer, required): The ID of the task to retrieve.
-
-#### Response
-
-**Status Code:** 200 OK
-
-**Response Body:**
+> Not Found
 
 ```json
 {
-  "message": "task deleted"
+  "error": "Task not found"
 }
 ```
 
-**Status Code:** 400 Bad Request
+### Responses
 
-**Response Body:**
+| HTTP Status Code | Meaning                                                         | Description  | Data schema |
+| ---------------- | --------------------------------------------------------------- | ------------ | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)         | Success      | Inline      |
+| 401              | [Unauthorized](https://tools.ietf.org/html/rfc7235#section-3.1) | Unauthorized | Inline      |
+| 404              | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)  | Not Found    | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name          | Type   | Required | Restrictions | Title | description |
+| ------------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id          | string | true     | none         |       | none        |
+| » title       | string | true     | none         |       | none        |
+| » description | string | true     | none         |       | none        |
+| » due_date    | string | true     | none         |       | none        |
+| » status      | string | true     | none         |       | none        |
+| » user_id     | string | true     | none         |       | none        |
+
+HTTP Status Code **401**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+HTTP Status Code **404**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+# Users
+
+## GET Get Users
+
+GET /users
+
+> Response Examples
+
+> Success
+
+```json
+[
+  {
+    "id": "66b4a223137908816d0322b2",
+    "username": "nahomderese",
+    "role": "admin"
+  },
+  {
+    "id": "66b4a256137908816d0322b3",
+    "username": "nahomd",
+    "role": "regular"
+  },
+  {
+    "id": "66b4b13c3ec210450b9428b0",
+    "username": "abelw",
+    "role": "admin"
+  },
+  {
+    "id": "66b4b17aac199c6aed508dd0",
+    "username": "ephyg",
+    "role": "admin"
+  },
+  {
+    "id": "66b4b2d48dc37790656dd224",
+    "username": "moali",
+    "role": "regular"
+  },
+  {
+    "id": "66b4b2ed97b550152156f0f1",
+    "username": "chalaolani",
+    "role": "regular"
+  },
+  {
+    "id": "66b4b318972fe33d7ad635c2",
+    "username": "check",
+    "role": "regular"
+  },
+  {
+    "id": "66b4b4ab681587ee0fcfe486",
+    "username": "checked",
+    "role": "regular"
+  },
+  {
+    "id": "66b4b5d3d0a4f6bf177cdd60",
+    "username": "checking",
+    "role": "regular"
+  }
+]
+```
+
+### Responses
+
+| HTTP Status Code | Meaning                                                 | Description | Data schema |
+| ---------------- | ------------------------------------------------------- | ----------- | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | Success     | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name       | Type   | Required | Restrictions | Title | description |
+| ---------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id       | string | true     | none         |       | none        |
+| » username | string | true     | none         |       | none        |
+| » role     | string | true     | none         |       | none        |
+
+## GET Promote
+
+GET /
+
+> Response Examples
+
+> Success
 
 ```json
 {
-  "error": "task not found"
+  "id": "66b4b318972fe33d7ad635c2",
+  "username": "check",
+  "role": "admin"
 }
 ```
 
-**Status Code:** 404 Not Found
-
-**Response Body:**
+> Not Found
 
 ```json
 {
-  "error": "task not found"
+  "error": "user not found"
 }
 ```
 
-### Create Task
+### Responses
 
-#### Request
+| HTTP Status Code | Meaning                                                        | Description | Data schema |
+| ---------------- | -------------------------------------------------------------- | ----------- | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)        | Success     | Inline      |
+| 404              | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4) | Not Found   | Inline      |
 
-`POST /tasks`
+### Responses Data Schema
 
-*#*Request Body:\*\*
+HTTP Status Code **200**
 
-```http
-POST /tasks/
-Content-Type: application/json
+| Name       | Type   | Required | Restrictions | Title | description |
+| ---------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id       | string | true     | none         |       | none        |
+| » username | string | true     | none         |       | none        |
+| » role     | string | true     | none         |       | none        |
 
-{
-  "title": "Task Title",
-  "description": "desc for the task",
-  "status": "done"
-}
-```
+HTTP Status Code **404**
 
-#### Response
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
 
-**Status Code:** 201 Created
+## GET Get User
 
-**Response Body:**
+GET /users/{id}
+
+### Params
+
+| Name | Location | Type   | Required | Description |
+| ---- | -------- | ------ | -------- | ----------- |
+| id   | path     | string | yes      | none        |
+
+> Response Examples
+
+> Success
 
 ```json
 {
-  "id": "2",
-  "title": "Task Title",
-  "description": "desc for the task",
-  "due_date": "2020-01-20T01:38:86Z",
-  "status": "done"
+  "id": "66b4b2ed97b550152156f0f1",
+  "username": "chalaolani",
+  "role": "regular"
 }
 ```
 
-**Status Code:** 400 Bad# Request
-
-**Response Body:**
+> Not Found
 
 ```json
 {
-  "error": "Bad Request"
+  "error": "user not found"
 }
 ```
+
+### Responses
+
+| HTTP Status Code | Meaning                                                        | Description | Data schema |
+| ---------------- | -------------------------------------------------------------- | ----------- | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)        | Success     | Inline      |
+| 404              | [Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4) | Not Found   | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name       | Type   | Required | Restrictions | Title | description |
+| ---------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id       | string | true     | none         |       | none        |
+| » username | string | true     | none         |       | none        |
+| » role     | string | true     | none         |       | none        |
+
+HTTP Status Code **404**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+# Auth
+
+## POST Login
+
+POST /auth/login
+
+> Body Parameters
+
+```json
+{
+  "username": "nahomderese",
+  "password": "nahomderese"
+}
+```
+
+### Params
+
+| Name       | Location | Type   | Required | Description |
+| ---------- | -------- | ------ | -------- | ----------- |
+| body       | body     | object | no       | none        |
+| » username | body     | string | yes      | none        |
+| » password | body     | string | yes      | none        |
+
+> Response Examples
+
+> Success Login
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjMxMTgzMDEsImlkIjoiNjZiMmVlNWQ2MTg2NTgzNDYyMmI1OGViIiwidXNlcm5hbWUiOiJuYWhvbWRlcmVzZSJ9.YFVTN9QRb-t8j1fE8nkOHxp2xw6BgVWlisrQex8Seto"
+}
+```
+
+### Responses
+
+| HTTP Status Code | Meaning                                                 | Description   | Data schema |
+| ---------------- | ------------------------------------------------------- | ------------- | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1) | Success Login | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » token | string | true     | none         |       | none        |
+
+## POST SignUp
+
+POST /auth/register
+
+> Body Parameters
+
+```json
+{
+  "username": "nahom_de",
+  "password": "check"
+}
+```
+
+### Params
+
+| Name       | Location | Type   | Required | Description |
+| ---------- | -------- | ------ | -------- | ----------- |
+| body       | body     | object | no       | none        |
+| » username | body     | string | yes      | none        |
+| » password | body     | string | yes      | none        |
+
+> Response Examples
+
+> Success
+
+```json
+{
+  "id": "66b4c8c7c5dad55df0394e59",
+  "username": "new_user",
+  "role": "regular"
+}
+```
+
+> Duplicate Username
+
+```json
+{
+  "error": "user with this username already exists"
+}
+```
+
+### Responses
+
+| HTTP Status Code | Meaning                                                       | Description        | Data schema |
+| ---------------- | ------------------------------------------------------------- | ------------------ | ----------- |
+| 200              | [OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)       | Success            | Inline      |
+| 409              | [Conflict](https://tools.ietf.org/html/rfc7231#section-6.5.8) | Duplicate Username | Inline      |
+
+### Responses Data Schema
+
+HTTP Status Code **200**
+
+| Name       | Type   | Required | Restrictions | Title | description |
+| ---------- | ------ | -------- | ------------ | ----- | ----------- |
+| » id       | string | true     | none         |       | none        |
+| » username | string | true     | none         |       | none        |
+| » role     | string | true     | none         |       | none        |
+
+HTTP Status Code **409**
+
+| Name    | Type   | Required | Restrictions | Title | description |
+| ------- | ------ | -------- | ------------ | ----- | ----------- |
+| » error | string | true     | none         |       | none        |
+
+<br>
+<br>
+<br>
+
+## Read More
+
+[Click Here](https://www.apidog.com/apidoc/shared-46a03815-ef9e-41d9-8d49-6205356e65ac)
