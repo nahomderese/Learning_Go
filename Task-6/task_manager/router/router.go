@@ -15,12 +15,9 @@ func TaskHandlers(r *gin.RouterGroup, ctrl controllers.TaskHandlers) {
 	r.GET("", ctrl.GetAllTasks())
 	r.GET(":id", ctrl.GetTaskById())
 
-	// Admin Middleware
-	r.Use(middleware.AdminAuthMiddleware())
-
-	r.POST("", ctrl.CreateTask())
-	r.PUT(":id", ctrl.UpdateTask())
-	r.DELETE(":id", ctrl.DeleteTask())
+	r.POST("", middleware.AdminAuthMiddleware(), ctrl.CreateTask())
+	r.PUT(":id", middleware.AdminAuthMiddleware(), ctrl.UpdateTask())
+	r.DELETE(":id", middleware.AdminAuthMiddleware(), ctrl.DeleteTask())
 
 }
 
@@ -41,7 +38,7 @@ func UserHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
 
 }
 
-func AuthHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
+func AuthHandlers(r *gin.RouterGroup, ctrl controllers.AuthHandlers) {
 
 	// Auth Endpoints
 	r.POST("/register", ctrl.SignUp())

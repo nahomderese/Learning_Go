@@ -45,6 +45,7 @@ func main() {
 
 	taskHandler := &controllers.TaskController{TaskRepo: taskRepo, UserRepo: userRepo}
 	userHandler := &controllers.UserController{UserRepo: userRepo}
+	authHandler := &controllers.AuthController{UserRepo: userRepo}
 
 	taskRoutes := r.Group("tasks")
 	userRoutes := r.Group("users")
@@ -56,9 +57,9 @@ func main() {
 
 	router.TaskHandlers(taskRoutes, taskHandler)
 	router.UserHandlers(userRoutes, userHandler)
-	router.AuthHandlers(authRoutes, userHandler)
+	router.AuthHandlers(authRoutes, authHandler)
 
-	r.Run("localhost:8080")
+	r.Run("localhost:8000")
 }
 
 func disconnect(err error, client *mongo.Client) {
