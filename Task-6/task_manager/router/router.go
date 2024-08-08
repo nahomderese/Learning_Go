@@ -29,7 +29,6 @@ func UserHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
 
 	r.GET("", middleware.AdminAuthMiddleware(), ctrl.GetAllUsers())
 	r.PATCH("/promote/:username", middleware.AdminAuthMiddleware(), ctrl.PromoteUser())
-	r.DELETE("", ctrl.DeleteAllUser())
 
 }
 

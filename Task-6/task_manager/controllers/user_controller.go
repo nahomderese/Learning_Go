@@ -113,7 +113,6 @@ func (ctrl *UserController) PromoteUser() gin.HandlerFunc {
 
 		user.Role = "admin"
 		newUser, err := ctrl.UserRepo.Update(user)
-		newUser, err := ctrl.UserRepo.Update(user)
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -174,8 +173,9 @@ func (ctrl *AuthController) SignUp() gin.HandlerFunc {
 		}
 
 		// check if user already exists
-		_, err = ctrl.UserRepo.FindUser(user.ID.Hex())
-		if err != nil {
+		_, exists := ctrl.UserRepo.FindByUsername(user.Username)
+
+		if exists {
 			c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
 			return
 		}
