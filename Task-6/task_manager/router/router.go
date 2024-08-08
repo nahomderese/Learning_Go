@@ -14,31 +14,26 @@ func TaskHandlers(r *gin.RouterGroup, ctrl controllers.TaskHandlers) {
 	r.GET("", ctrl.GetAllTasks())
 	r.GET(":id", ctrl.GetTaskById())
 
-	// Admin Middleware
-	r.Use(middleware.AdminAuthMiddleware())
-
-	r.POST("", ctrl.CreateTask())
-	r.PUT(":id", ctrl.UpdateTask())
-	r.DELETE(":id", ctrl.DeleteTask())
+	r.POST("", middleware.AdminAuthMiddleware(), ctrl.CreateTask())
+	r.PUT(":id", middleware.AdminAuthMiddleware(), ctrl.UpdateTask())
+	r.DELETE(":id", middleware.AdminAuthMiddleware(), ctrl.DeleteTask())
 
 }
 
 func UserHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
 
 	// Users Endpoints
-	r.PUT(":id", ctrl.UpdateUser())
-	r.GET(":id", ctrl.GetUser())
-	r.DELETE(":id", ctrl.DeleteUser())
+	r.PUT(":username", ctrl.UpdateUser())
+	r.GET(":username", ctrl.GetUser())
+	r.DELETE(":username", ctrl.DeleteUser())
 
-	// Admin Middleware
-	r.Use(middleware.AdminAuthMiddleware())
-
-	r.GET("", ctrl.GetAllUsers())
-	r.PATCH("/promote/:id", ctrl.PromoteUser())
+	r.GET("", middleware.AdminAuthMiddleware(), ctrl.GetAllUsers())
+	r.PATCH("/promote/:username", middleware.AdminAuthMiddleware(), ctrl.PromoteUser())
+	r.DELETE("", ctrl.DeleteAllUser())
 
 }
 
-func AuthHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
+func AuthHandlers(r *gin.RouterGroup, ctrl controllers.AuthHandlers) {
 
 	// Auth Endpoints
 	r.POST("/register", ctrl.SignUp())

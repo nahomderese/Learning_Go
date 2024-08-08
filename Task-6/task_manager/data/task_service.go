@@ -3,7 +3,7 @@ package data
 import (
 	"context"
 	"errors"
-	"fmt"
+
 	"log"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-6/task_manager/models"
@@ -15,9 +15,9 @@ import (
 // TaskRepository is an interface for managing tasks.
 
 type TaskRepository interface {
-	Save(c context.Context, task *models.Task) (models.Task, error)
-	FindByID(c context.Context, id primitive.ObjectID) (*models.Task, error)
-	FindAll(c context.Context, user models.UserRes) []models.Task
+	Save(c context.Context, task models.Task) (models.Task, error)
+	FindByID(c context.Context, id primitive.ObjectID) (models.Task, error)
+	FindAll(c context.Context, user models.User) []models.Task
 	Delete(c context.Context, id primitive.ObjectID) error
 }
 
@@ -30,8 +30,6 @@ func (repo *MongoTaskRepository) Delete(c context.Context, id primitive.ObjectID
 
 	result, _ := repo.collection.DeleteOne(c, bson.M{"_id": id})
 
-	fmt.Println(result.DeletedCount)
-
 	if result.DeletedCount == 0 {
 		return errors.New("task not found")
 	}
@@ -40,7 +38,7 @@ func (repo *MongoTaskRepository) Delete(c context.Context, id primitive.ObjectID
 }
 
 // FindAll implements TaskRepository.
-func (repo *MongoTaskRepository) FindAll(c context.Context, user models.UserRes) []models.Task {
+func (repo *MongoTaskRepository) FindAll(c context.Context, user models.User) []models.Task {
 
 	query := bson.D{}
 
@@ -54,7 +52,7 @@ func (repo *MongoTaskRepository) FindAll(c context.Context, user models.UserRes)
 		log.Fatal(err)
 	}
 
-	var tasks []models.Task
+	var tasks []models.Task = make([]models.Task, 0)
 	if err = cursor.All(c, &tasks); err != nil {
 		log.Fatal(err)
 	}
@@ -73,30 +71,33 @@ func (repo *MongoTaskRepository) FindAll(c context.Context, user models.UserRes)
 }
 
 // FindByID implements TaskRepository.
-func (repo *MongoTaskRepository) FindByID(c context.Context, id primitive.ObjectID) (*models.Task, error) {
+func (repo *MongoTaskRepository) FindByID(c context.Context, id primitive.ObjectID) (models.Task, error) {
 
 	var task models.Task
 	err := repo.collection.FindOne(c, bson.M{"_id": id}).Decode(&task)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, errors.New("task not found")
+			return models.Task{}, errors.New("task not found")
 		} else {
 			log.Fatal(err)
 		}
 	}
 
-	return &task, nil
+	return task, nil
 }
 
 // Save implements TaskRepository.
-func (repo *MongoTaskRepository) Save(c context.Context, task *models.Task) (models.Task, error) {
-	task.ID = primitive.NewObjectID()
-	_, err := repo.collection.InsertOne(context.TODO(), task)
+func (repo *MongoTaskRepository) Save(c context.Context, task models.Task) (models.Task, error) {
+
+	InsertedTask, err := repo.collection.InsertOne(context.TODO(), task)
+
 	if err != nil {
 		return models.Task{}, err
 	}
-	return *task, nil
+
+	task.ID = InsertedTask.InsertedID.(primitive.ObjectID)
+	return task, nil
 }
 
 // Constructor functions

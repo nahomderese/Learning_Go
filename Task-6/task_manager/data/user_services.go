@@ -15,8 +15,9 @@ import (
 
 type UserRepository interface {
 	Save(user models.User) (models.UserRes, error)
-	FindById(id primitive.ObjectID) (models.UserRes, error)
+	Update(user models.User) (models.UserRes, error)
 	FindUser(id string) (models.User, error)
+	FindByUsername(username string) (models.User, bool)
 	FindAll() []models.UserRes
 	Delete(username string) error
 	DeleteAll() error
@@ -64,7 +65,7 @@ func (repo *MongoUserRepository) FindAll() []models.UserRes {
 		log.Fatal(err)
 	}
 
-	var users []models.UserRes
+	var users []models.UserRes = make([]models.UserRes, 0)
 
 	for cursor.Next(context.Background()) {
 		var user models.User
@@ -84,12 +85,14 @@ func (repo *MongoUserRepository) FindAll() []models.UserRes {
 }
 
 // FindByUsername implements UserRepository.
-func (repo *MongoUserRepository) FindByUsername(username string) (models.UserRes, error) {
+func (repo *MongoUserRepository) FindByUsername(username string) (models.User, bool) {
 
 	var user models.User
-	err := repo.collection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
 
-	return handleUserError(user, err)
+	repo.collection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+
+	return user, user.Username == username
+
 }
 
 // FindByID implements UserRepository.
@@ -114,22 +117,37 @@ func (repo *MongoUserRepository) FindUser(id string) (models.User, error) {
 
 	repo.collection.FindOne(context.TODO(), bson.M{"_id": _id}).Decode(&user)
 
-	if err == mongo.ErrNoDocuments {
+	if user.ID.Hex() != id {
 		return models.User{}, errors.New("user not found")
-	} else {
-		log.Fatal(err)
 	}
 
 	return user, nil
+
 }
 
 // Save implements UserRepository.
 func (repo *MongoUserRepository) Save(user models.User) (models.UserRes, error) {
-	user.ID = primitive.NewObjectID()
-	_, err := repo.collection.InsertOne(context.TODO(), user)
+	res, err := repo.collection.InsertOne(context.TODO(), user)
 	if err != nil {
 		return models.UserRes{}, err
 	}
+
+	return models.UserRes{
+		ID:       res.InsertedID.(primitive.ObjectID),
+		Username: user.Username,
+		Role:     user.Role,
+	}, nil
+
+}
+
+// Save implements UserRepository.
+func (repo *MongoUserRepository) Update(user models.User) (models.UserRes, error) {
+	_, err := repo.collection.UpdateOne(context.TODO(), bson.M{"username": user.Username}, bson.M{"$set": bson.M{"role": user.Role}})
+
+	if err != nil {
+		return models.UserRes{}, err
+	}
+
 	return models.UserRes{
 		ID:       user.ID,
 		Username: user.Username,
