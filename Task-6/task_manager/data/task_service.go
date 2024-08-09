@@ -43,7 +43,7 @@ func (repo *MongoTaskRepository) FindAll(c context.Context, user models.User) []
 	query := bson.D{}
 
 	if user.Role != "admin" {
-		query = bson.D{{"user_id", user.ID}}
+		query = bson.D{{Key: "user_id", Value: user.ID.Hex()}}
 	}
 
 	cursor, err := repo.collection.Find(c, query)
@@ -55,16 +55,6 @@ func (repo *MongoTaskRepository) FindAll(c context.Context, user models.User) []
 	var tasks []models.Task = make([]models.Task, 0)
 	if err = cursor.All(c, &tasks); err != nil {
 		log.Fatal(err)
-	}
-
-	for cursor.Next(c) {
-		var elem models.Task
-		err := cursor.Decode(&elem)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		tasks = append(tasks, elem)
 	}
 
 	return tasks
