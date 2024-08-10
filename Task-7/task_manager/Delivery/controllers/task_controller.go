@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/data"
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/models"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/domain"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/usecase"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,14 +19,14 @@ type TaskHandlers interface {
 }
 
 type TaskController struct {
-	TaskRepo data.TaskRepository
-	UserRepo data.UserRepository
+	TaskUsecase usecase.TaskUseCase
+	UserUsecase usecase.UserUseCase
 }
 
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user := c.MustGet("user").(models.User)
-		tasks := ctrl.TaskRepo.FindAll(context.TODO(), user)
+		user := c.MustGet("user").(domain.User)
+		tasks := ctrl.TaskUsecase.FindAll(context.TODO(), user)
 		c.JSON(200, tasks)
 	}
 }
@@ -35,7 +35,7 @@ func (ctrl *TaskController) GetTaskById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
 		oid, _ := primitive.ObjectIDFromHex(id)
-		task, err := ctrl.TaskRepo.FindByID(c, oid)
+		task, err := ctrl.TaskUsecase.FindByID(c, oid)
 		if err != nil {
 			c.JSON(404, gin.H{"error": "Task not found"})
 			return
@@ -49,14 +49,14 @@ func (ctrl *TaskController) UpdateTask() gin.HandlerFunc {
 		id := c.Param("id")
 
 		oid, _ := primitive.ObjectIDFromHex(id)
-		task, err := ctrl.TaskRepo.FindByID(c, oid)
+		task, err := ctrl.TaskUsecase.FindByID(c, oid)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 			return
 		}
 
 		c.BindJSON(&task)
-		ctrl.TaskRepo.Save(c, task)
+		ctrl.TaskUsecase.Save(c, task)
 		c.JSON(200, task)
 	}
 }
@@ -66,33 +66,38 @@ func (ctrl *TaskController) DeleteTask() gin.HandlerFunc {
 		id := c.Param("id")
 		oid, _ := primitive.ObjectIDFromHex(id)
 
-		err := ctrl.TaskRepo.Delete(c, oid)
+		err := ctrl.TaskUsecase.Delete(c, oid)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusAccepted, gin.H{"message": "Task deleted"})
+		c.JSON(http.StatusNoContent, gin.H{"message": "Task deleted"})
 	}
 }
 
 func (ctrl *TaskController) CreateTask() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var task models.Task
+		var task domain.Task
 		err := c.BindJSON(&task)
 
 		if err != nil {
 			return
 		}
 
-		_, e := ctrl.UserRepo.FindUser(task.UserId)
+		_, e := ctrl.UserUsecase.FindUser(task.UserId)
 
 		if e != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 			return
 		}
 
-		task, err = ctrl.TaskRepo.Save(context.TODO(), task)
-		c.JSON(200, task)
+		task, err = ctrl.TaskUsecase.Save(context.TODO(), task)
 
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(200, task)
 	}
 }
