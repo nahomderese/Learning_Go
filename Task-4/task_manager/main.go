@@ -12,16 +12,14 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(contentType)
 
-
 	taskRepo := data.NewInMemoryTaskRepository()
 
 	taskHandler := &controllers.TaskController{TaskRepo: taskRepo}
 
 	router.Handlers(r, taskHandler)
 
-	r.Run("localhost:8080")
+	r.Run("localhost:8000")
 }
-
 
 func contentType(c *gin.Context) {
 	c.Header("Content-Type", "application/json")
