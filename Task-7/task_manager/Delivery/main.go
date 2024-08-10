@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/controllers"
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/data"
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/middleware"
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/router"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/Delivery/controllers"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/Delivery/router"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/infrastructure"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/repositories"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,7 +17,7 @@ import (
 )
 
 func init() {
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -27,8 +28,7 @@ func main() {
 
 	r := gin.New()
 	r.Use(gin.Recovery())
-	r.Use(gin.ErrorLogger())
-	// r.Use(contentType)
+	r.Use(gin.Logger())
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	user_collection := client.Database("taskManager").Collection("users")
@@ -38,23 +38,31 @@ func main() {
 		panic(err)
 	}
 
-	defer disconnect(err, client)
+	defer disconnect(client)
 
-	taskRepo := data.NewMongoTaskRepository(task_collection)
-	userRepo := data.NewMongoUserRepository(user_collection)
+	// Repositories
+	taskRepo := repositories.NewMongoTaskRepository(task_collection)
+	userRepo := repositories.NewMongoUserRepository(user_collection)
 
-	taskHandler := &controllers.TaskController{TaskRepo: taskRepo, UserRepo: userRepo}
-	userHandler := &controllers.UserController{UserRepo: userRepo}
-	authHandler := &controllers.AuthController{UserRepo: userRepo}
+	// Usecases
+	taskUsecase := usecase.NewTaskUseCase(taskRepo)
+	userUsecase := usecase.NewUserUseCase(userRepo)
 
+	// Handlers (Routers)
+	taskHandler := &controllers.TaskController{TaskUsecase: *taskUsecase, UserUsecase: *userUsecase}
+	userHandler := &controllers.UserController{UserUsecase: *userUsecase}
+	authHandler := &controllers.AuthController{UserUsecase: *userUsecase}
+
+	// Routes
 	taskRoutes := r.Group("tasks")
 	userRoutes := r.Group("users")
 	authRoutes := r.Group("auth")
 
 	// middlewares
-	taskRoutes.Use(middleware.AuthMiddleware(userRepo))
-	userRoutes.Use(middleware.AuthMiddleware(userRepo))
+	taskRoutes.Use(infrastructure.AuthMiddleware(userRepo))
+	userRoutes.Use(infrastructure.AuthMiddleware(userRepo))
 
+	// Handlers
 	router.TaskHandlers(taskRoutes, taskHandler)
 	router.UserHandlers(userRoutes, userHandler)
 	router.AuthHandlers(authRoutes, authHandler)
@@ -62,8 +70,8 @@ func main() {
 	r.Run("localhost:8000")
 }
 
-func disconnect(err error, client *mongo.Client) {
-	if err = client.Disconnect(context.TODO()); err != nil {
+func disconnect(client *mongo.Client) {
+	if err := client.Disconnect(context.TODO()); err != nil {
 		panic(err)
 	}
 }

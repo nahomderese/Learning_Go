@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/controllers"
-	"github.com/Nahom-Derese/Learning_Go/Task-7/task_manager/middleware"
+	"github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/Delivery/controllers"
+	infrastructure "github.com/Nahom-Derese/Learning_Go/Task-7/task-manager/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,9 +14,10 @@ func TaskHandlers(r *gin.RouterGroup, ctrl controllers.TaskHandlers) {
 	r.GET("", ctrl.GetAllTasks())
 	r.GET(":id", ctrl.GetTaskById())
 
-	r.POST("", middleware.AdminAuthMiddleware(), ctrl.CreateTask())
-	r.PUT(":id", middleware.AdminAuthMiddleware(), ctrl.UpdateTask())
-	r.DELETE(":id", middleware.AdminAuthMiddleware(), ctrl.DeleteTask())
+	r.Use(infrastructure.AdminAuthMiddleware())
+	r.POST("", ctrl.CreateTask())
+	r.PUT(":id", ctrl.UpdateTask())
+	r.DELETE(":id", ctrl.DeleteTask())
 
 }
 
@@ -27,8 +28,9 @@ func UserHandlers(r *gin.RouterGroup, ctrl controllers.UserHandlers) {
 	r.GET(":username", ctrl.GetUser())
 	r.DELETE(":username", ctrl.DeleteUser())
 
-	r.GET("", middleware.AdminAuthMiddleware(), ctrl.GetAllUsers())
-	r.PATCH("/promote/:username", middleware.AdminAuthMiddleware(), ctrl.PromoteUser())
+	r.Use(infrastructure.AdminAuthMiddleware())
+	r.GET("", ctrl.GetAllUsers())
+	r.PATCH("/promote/:username", ctrl.PromoteUser())
 
 }
 
