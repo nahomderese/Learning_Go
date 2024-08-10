@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/Nahom-Derese/Learning_Go/Task-4/task_manager/data"
 	"github.com/Nahom-Derese/Learning_Go/Task-4/task_manager/models"
 	"github.com/gin-gonic/gin"
@@ -21,7 +23,7 @@ type TaskController struct {
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tasks := ctrl.TaskRepo.FindAll()
-		c.JSON(200, tasks)
+		c.JSON(http.StatusOK, tasks)
 	}
 }
 
@@ -30,10 +32,10 @@ func (ctrl *TaskController) GetTaskById() gin.HandlerFunc {
 		id := c.Param("id")
 		task, err := ctrl.TaskRepo.FindByID(id)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 			return
 		}
-		c.JSON(200, task)
+		c.JSON(http.StatusOK, task)
 	}
 }
 
@@ -42,12 +44,12 @@ func (ctrl *TaskController) UpdateTask() gin.HandlerFunc {
 		id := c.Param("id")
 		task, err := ctrl.TaskRepo.FindByID(id)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 			return
 		}
 		c.BindJSON(&task)
 		ctrl.TaskRepo.Save(task)
-		c.JSON(200, task)
+		c.JSON(http.StatusOK, task)
 	}
 }
 
@@ -56,10 +58,10 @@ func (ctrl *TaskController) DeleteTask() gin.HandlerFunc {
 		id := c.Param("id")
 		err := ctrl.TaskRepo.Delete(id)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 			return
 		}
-		c.JSON(204, gin.H{"message": "Task deleted"})
+		c.JSON(http.StatusNoContent, gin.H{"message": "Task deleted"})
 	}
 }
 
@@ -74,7 +76,7 @@ func (ctrl *TaskController) CreateTask() gin.HandlerFunc {
 		}
 
 		ctrl.TaskRepo.Save(&task)
-		c.JSON(200, task)
+		c.JSON(http.StatusOK, task)
 
 	}
 }

@@ -45,9 +45,11 @@ func (repo *InMemoryTaskRepository) FindByID(id string) (*models.Task, error) {
 
 func (repo *InMemoryTaskRepository) FindAll() []models.Task {
 	tasks := make([]models.Task, 0, len(repo.tasks))
+
 	for _, value := range repo.tasks {
 		tasks = append(tasks, value)
 	}
+
 	return tasks
 }
 
