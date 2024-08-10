@@ -25,31 +25,29 @@ http://localhost:8080
 **Response Body:**
 
 ```json
-{
-  "tasks": {
-    "1": {
-      "id": "1",
-      "title": "Complete Go project",
-      "description": "Finish the distributed system project in Go",
-      "due_date": "2023-08-07T12:34:56Z",
-      "status": "pending"
-    },
-    "2": {
-      "id": "2",
-      "title": "Write blog post",
-      "description": "Write a blog post about the Go project",
-      "due_date": "2023-08-14T12:34:56Z",
-      "status": "pending"
-    },
-    "3": {
-      "id": "3",
-      "title": "Update resume",
-      "description": "Add the new project details to the resume",
-      "due_date": "2023-08-03T12:34:56Z",
-      "status": "in progress"
-    }
+[
+  {
+    "id": "1",
+    "title": "Some New Task",
+    "description": "description of that Task",
+    "due_date": "2006-01-02T15:04:05Z",
+    "status": "Urgent"
+  },
+  {
+    "id": "2",
+    "title": "Some New Task",
+    "description": "description of that Task",
+    "due_date": "2006-01-02T15:04:05Z",
+    "status": "Urgent"
+  },
+  {
+    "id": "3",
+    "title": "Some New Task",
+    "description": "description of that Task",
+    "due_date": "2006-01-02T15:04:05Z",
+    "status": "Urgent"
   }
-}
+]
 ```
 
 ### Get Task by ID
@@ -68,7 +66,7 @@ http://localhost:8080
 
 ```json
 {
-  "id": "1",
+  "id": 1,
   "title": "Complete Go project",
   "description": "Finish the distributed system project in Go",
   "due_date": "2023-08-07T12:34:56Z",
