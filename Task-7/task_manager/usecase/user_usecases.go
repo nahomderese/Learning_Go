@@ -154,7 +154,7 @@ func (u *UserUseCase) CreateUser(user domain.User) (domain.UserRes, error) {
 // Save implements UserRepository.
 func (u *UserUseCase) Update(username string, user domain.UserRes) (domain.UserRes, error) {
 
-	newUser, err := u.UserRepo.Update(username, domain.User{Username: user.Username, Role: user.Role})
+	newUser, err := u.UserRepo.Update(username, domain.User{ID: user.ID, Username: user.Username, Role: user.Role})
 
 	if err != nil {
 		return domain.UserRes{}, errors.New("user not saved")

@@ -132,7 +132,7 @@ func (repo *MongoUserRepository) Save(user domain.User) (domain.User, error) {
 
 // Save implements UserRepository.
 func (repo *MongoUserRepository) Update(username string, user domain.User) (domain.User, error) {
-	_, err := repo.collection.UpdateOne(context.TODO(), bson.M{"username": username}, bson.M{"$set": bson.M{"role": user.Role, "username": user.Username}})
+	_, err := repo.collection.UpdateOne(context.TODO(), bson.M{"username": username}, bson.M{"$set": bson.M{"role": user.Role}})
 
 	if err != nil {
 		return domain.User{}, err
