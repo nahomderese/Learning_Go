@@ -102,7 +102,7 @@ http://localhost:8000
 
 **Path Parameters:** - `id` (integer, required): The ID of the task to retrieve.
 
-*#*Request Body:\*\*
+**Request Body:**
 
 ```http
 PUT /tasks/{id}
@@ -212,7 +212,7 @@ Content-Type: application/json
 
 #### Response
 
-**Status Code:** 201 Created
+**Status Code:** 204 Created
 
 **Response Body:**
 
