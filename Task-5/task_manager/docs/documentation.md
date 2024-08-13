@@ -197,7 +197,7 @@ Content-Type: application/json
 
 `POST /tasks`
 
-*#*Request Body:\*\*
+**Request Body:**
 
 ```http
 POST /tasks/
