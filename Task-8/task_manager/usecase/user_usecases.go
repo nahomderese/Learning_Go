@@ -222,7 +222,7 @@ func (u *UserUseCase) Signup(username string, password string) (domain.UserRes, 
 	_, exists := u.FindByUsername(username)
 
 	if exists {
-		return domain.UserRes{}, errors.New("user already exists")
+		return domain.UserRes{}, errors.New("Username already exists")
 	}
 
 	userData := domain.User{Username: username, Password: string(hash), Role: role}

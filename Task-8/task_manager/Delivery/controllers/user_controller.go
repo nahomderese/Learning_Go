@@ -19,6 +19,10 @@ type UserController struct {
 	UserUsecase domain.UserUsecase
 }
 
+func NewUserHandlers(userUsecase domain.UserUsecase) UserHandlers {
+	return &UserController{UserUsecase: userUsecase}
+}
+
 func (ctrl *UserController) GetAllUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		users := ctrl.UserUsecase.FindAll()

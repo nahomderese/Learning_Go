@@ -16,6 +16,10 @@ type AuthController struct {
 	UserUsecase domain.UserUsecase
 }
 
+func NewAuthHandlers(userUsecase domain.UserUsecase) AuthHandlers {
+	return &AuthController{UserUsecase: userUsecase}
+}
+
 func (ctrl *AuthController) SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user struct {
@@ -32,6 +36,9 @@ func (ctrl *AuthController) SignUp() gin.HandlerFunc {
 		newUser, e := ctrl.UserUsecase.Signup(user.Username, user.Password)
 
 		if e != nil {
+			if e.Error() == "Username already exists" {
+				c.JSON(http.StatusConflict, gin.H{"error": e.Error()})
+			}
 			c.JSON(http.StatusInternalServerError, gin.H{"error": e.Error()})
 			return
 		}

@@ -22,6 +22,10 @@ type TaskController struct {
 	UserUsecase domain.UserUsecase
 }
 
+func NewTaskHandlers(taskUsecase domain.TaskUsecase, userUsecase domain.UserUsecase) TaskHandlers {
+	return &TaskController{TaskUsecase: taskUsecase, UserUsecase: userUsecase}
+}
+
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := c.MustGet("user").(domain.User)

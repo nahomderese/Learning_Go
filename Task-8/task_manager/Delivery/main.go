@@ -49,9 +49,9 @@ func main() {
 	userUsecase := usecase.NewUserUseCase(userRepo)
 
 	// Handlers (Routers)
-	taskHandler := &controllers.TaskController{TaskUsecase: taskUsecase, UserUsecase: userUsecase}
-	userHandler := &controllers.UserController{UserUsecase: userUsecase}
-	authHandler := &controllers.AuthController{UserUsecase: userUsecase}
+	taskHandler := controllers.NewTaskHandlers(taskUsecase, userUsecase)
+	userHandler := controllers.NewUserHandlers(userUsecase)
+	authHandler := controllers.NewAuthHandlers(userUsecase)
 
 	// Routes
 	taskRoutes := r.Group("tasks")
