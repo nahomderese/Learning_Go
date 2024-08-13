@@ -1,0 +1,20 @@
+# with-expecter: true
+# packages:
+#   github.com/Nahom-Derese/Learning_Go/Task-8/task-manager:
+#     # place your package-specific config here
+#     config:
+#     interfaces:
+#       # repository interfaces
+#       - TaskRepository
+#       - UserRepository
+
+#       # uscase interfaces
+#       - TaskUsecase
+#       - UserUsecase
+
+#       # DB interfaces
+#       - MongoCollection
+
+inpackage: True
+with-expecter: True
+testonly: True
