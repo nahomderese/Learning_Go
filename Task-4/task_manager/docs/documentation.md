@@ -27,21 +27,21 @@ http://localhost:8000
 ```json
 [
   {
-    "id": "1",
+    "id": 1,
     "title": "Some New Task",
     "description": "description of that Task",
     "due_date": "2006-01-02T15:04:05Z",
     "status": "Urgent"
   },
   {
-    "id": "2",
+    "id": 2,
     "title": "Some New Task",
     "description": "description of that Task",
     "due_date": "2006-01-02T15:04:05Z",
     "status": "Urgent"
   },
   {
-    "id": "3",
+    "id": 3,
     "title": "Some New Task",
     "description": "description of that Task",
     "due_date": "2006-01-02T15:04:05Z",
@@ -218,7 +218,7 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "2",
+  "id": 2,
   "title": "Task Title",
   "description": "desc for the task",
   "due_date": "2020-01-20T01:38:86Z",
