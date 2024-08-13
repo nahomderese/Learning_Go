@@ -218,7 +218,7 @@ http://localhost:8000
 }
 ```
 
-**Status Code:** 400 Bad# Request
+**Status Code:** 400 Bad Request
 
 **Response Body:**
 
