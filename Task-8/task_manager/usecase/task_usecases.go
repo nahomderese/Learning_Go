@@ -31,10 +31,15 @@ func (u *TaskUseCase) Delete(c context.Context, id primitive.ObjectID) error {
 }
 
 // FindAll implements Taskusitory.
-func (u *TaskUseCase) FindAll(c context.Context, user domain.User) []domain.Task {
+func (u *TaskUseCase) FindAll(c context.Context, user domain.User) ([]domain.Task, error) {
 
-	tasks := u.TaskRepository.FindAll(c, user)
-	return tasks
+	tasks, err := u.TaskRepository.FindAll(c, user)
+
+	if err != nil {
+		return nil, errors.New("tasks not found")
+	}
+
+	return tasks, nil
 }
 
 // FindByID implements Taskusitory.

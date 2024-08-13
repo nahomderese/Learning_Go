@@ -25,7 +25,13 @@ type TaskController struct {
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := c.MustGet("user").(domain.User)
-		tasks := ctrl.TaskUsecase.FindAll(context.TODO(), user)
+		tasks, err := ctrl.TaskUsecase.FindAll(context.TODO(), user)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
 		c.JSON(200, tasks)
 	}
 }
