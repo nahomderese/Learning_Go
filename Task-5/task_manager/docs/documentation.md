@@ -161,7 +161,7 @@ Content-Type: application/json
 
 #### Response
 
-**Status Code:** 200 OK
+**Status Code:** 204 No Content
 
 **Response Body:**
 
@@ -212,7 +212,7 @@ Content-Type: application/json
 
 #### Response
 
-**Status Code:** 204 Created
+**Status Code:** 201 Created
 
 **Response Body:**
 
