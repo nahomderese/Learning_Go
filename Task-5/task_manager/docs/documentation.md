@@ -2,7 +2,7 @@
 
 ## Description
 
-The Task API allows users to manage tasks efficiently. It provides endpoints to create, retrieve, update, and delete tasks. Users can fetch all tasks or get details of a specific task by its ID. The API also supports updating and deleting tasks by their ID. This makes it easy to integrate task management functionality into your applications.
+The Task API allows users to manage tasks efficiently. It provides endpoints to create, retrieve, update, and delete tasks. Users can fetch all tasks or get details of a specific task by its ID. This makes it easy to integrate task management functionality into your applications.
 
 ## BaseUrl
 
@@ -29,21 +29,21 @@ http://localhost:8000
   {
     "id": 1,
     "title": "Some New Task",
-    "description": "description of that Task",
+    "description": "Description of the task",
     "due_date": "2006-01-02T15:04:05Z",
     "status": "Urgent"
   },
   {
     "id": 2,
-    "title": "Some New Task",
-    "description": "description of that Task",
+    "title": "Another Task",
+    "description": "Description of another task",
     "due_date": "2006-01-02T15:04:05Z",
     "status": "Urgent"
   },
   {
     "id": 3,
-    "title": "Some New Task",
-    "description": "description of that Task",
+    "title": "Third Task",
+    "description": "Description of the third task",
     "due_date": "2006-01-02T15:04:05Z",
     "status": "Urgent"
   }
@@ -54,7 +54,7 @@ http://localhost:8000
 
 #### Request
 
-`GET /tasks/:id`
+`GET /tasks/{id}`
 
 **Path Parameters:** - `id` (integer, required): The ID of the task to retrieve.
 
@@ -74,13 +74,13 @@ http://localhost:8000
 }
 ```
 
-**Status Code:** 400 Bad# Request
+**Status Code:** 400 Bad Request
 
 **Response Body:**
 
 ```json
 {
-  "error": "invalid id"
+  "error": "Invalid ID format"
 }
 ```
 
@@ -90,7 +90,7 @@ http://localhost:8000
 
 ```json
 {
-  "error": "task not found"
+  "error": "Task not found"
 }
 ```
 
@@ -98,19 +98,16 @@ http://localhost:8000
 
 #### Request
 
-`PUT /tasks/:id`
+`PUT /tasks/{id}`
 
 **Path Parameters:** - `id` (integer, required): The ID of the task to retrieve.
 
 **Request Body:**
 
-```http
-PUT /tasks/{id}
-Content-Type: application/json
-
+```json
 {
   "title": "New Task Title",
-  "description": "Mew description",
+  "description": "New description",
   "due_date": "2020-02-21T02:04:50Z",
   "status": "completed"
 }
@@ -124,8 +121,9 @@ Content-Type: application/json
 
 ```json
 {
+  "id": 1,
   "title": "New Task Title",
-  "description": "Mew description",
+  "description": "New description",
   "due_date": "2020-02-21T02:04:50Z",
   "status": "completed"
 }
@@ -137,7 +135,7 @@ Content-Type: application/json
 
 ```json
 {
-  "error": "id not valid"
+  "error": "Invalid ID or request data"
 }
 ```
 
@@ -147,7 +145,7 @@ Content-Type: application/json
 
 ```json
 {
-  "error": "task not found"
+  "error": "Task not found"
 }
 ```
 
@@ -165,11 +163,7 @@ Content-Type: application/json
 
 **Response Body:**
 
-```json
-{
-  "message": "task deleted"
-}
-```
+( No Content )
 
 **Status Code:** 400 Bad Request
 
@@ -177,7 +171,7 @@ Content-Type: application/json
 
 ```json
 {
-  "error": "task not found"
+  "error": "Invalid ID format"
 }
 ```
 
@@ -187,7 +181,7 @@ Content-Type: application/json
 
 ```json
 {
-  "error": "task not found"
+  "error": "Task not found"
 }
 ```
 
@@ -199,13 +193,11 @@ Content-Type: application/json
 
 **Request Body:**
 
-```http
-POST /tasks/
-Content-Type: application/json
-
+```json
 {
   "title": "Task Title",
-  "description": "desc for the task",
+  "description": "Description for the task",
+  "due_date": "2024-01-20T01:38:56Z",
   "status": "done"
 }
 ```
@@ -220,8 +212,8 @@ Content-Type: application/json
 {
   "id": 2,
   "title": "Task Title",
-  "description": "desc for the task",
-  "due_date": "2020-01-20T01:38:86Z",
+  "description": "Description for the task",
+  "due_date": "2024-01-20T01:38:56Z",
   "status": "done"
 }
 ```
@@ -232,6 +224,6 @@ Content-Type: application/json
 
 ```json
 {
-  "error": "Bad Request"
+  "error": "Invalid request data"
 }
 ```
