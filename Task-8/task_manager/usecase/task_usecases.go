@@ -14,7 +14,7 @@ type TaskUseCase struct {
 }
 
 // NewTaskUseCase is a function that returns a new TaskUseCase
-func NewTaskUseCase(taskRepo domain.TaskRepository) *TaskUseCase {
+func NewTaskUseCase(taskRepo domain.TaskRepository) domain.TaskUsecase {
 	return &TaskUseCase{TaskRepository: taskRepo}
 }
 

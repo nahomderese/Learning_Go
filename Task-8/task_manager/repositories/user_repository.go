@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
+	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/infrastructure"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +15,7 @@ import (
 // TaskRepository is an interface for managing tasks.
 
 type MongoUserRepository struct {
-	collection *mongo.Collection
+	collection infrastructure.MongoCollection
 }
 
 // Delete implements UserRepository.
@@ -148,7 +149,7 @@ func (repo *MongoUserRepository) Update(username string, user domain.User) (doma
 
 // Constructor functions
 
-func NewMongoUserRepository(collection *mongo.Collection) domain.UserRepository {
+func NewUserRepository(collection infrastructure.MongoCollection) domain.UserRepository {
 	return &MongoUserRepository{collection}
 }
 

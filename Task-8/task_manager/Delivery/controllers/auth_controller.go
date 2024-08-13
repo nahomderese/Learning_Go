@@ -4,8 +4,6 @@ import (
 	"net/http"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
-	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/infrastructure"
-	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/usecase"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,7 +14,7 @@ type AuthHandlers interface {
 }
 
 type AuthController struct {
-	UserUsecase usecase.UserUseCase
+	UserUsecase domain.UserUsecase
 }
 
 func (ctrl *AuthController) SignUp() gin.HandlerFunc {
@@ -81,25 +79,10 @@ func (ctrl *AuthController) Login() gin.HandlerFunc {
 			return
 		}
 
-		// get user from db
-		userFromDB, exist := ctrl.UserUsecase.UserRepo.FindByUsername(user.Username)
-		if !exist {
-			c.JSON(http.StatusNotFound, gin.H{"error": "username or password is incorrect"})
-			return
-		}
-
-		err = bcrypt.CompareHashAndPassword([]byte(userFromDB.Password), []byte(user.Password))
+		token, err := ctrl.UserUsecase.Login(user.Username, user.Password)
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "username or password is incorrect"})
-			return
-		}
-
-		// generate token
-		token, err := infrastructure.GenerateToken(userFromDB.Username, userFromDB.ID.Hex())
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
 

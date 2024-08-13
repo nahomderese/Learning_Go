@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
-	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/usecase"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,8 +18,8 @@ type TaskHandlers interface {
 }
 
 type TaskController struct {
-	TaskUsecase usecase.TaskUseCase
-	UserUsecase usecase.UserUseCase
+	TaskUsecase domain.TaskUsecase
+	UserUsecase domain.UserUsecase
 }
 
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {

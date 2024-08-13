@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
-	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/usecase"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +16,7 @@ type UserHandlers interface {
 }
 
 type UserController struct {
-	UserUsecase usecase.UserUseCase
+	UserUsecase domain.UserUsecase
 }
 
 func (ctrl *UserController) GetAllUsers() gin.HandlerFunc {

@@ -17,6 +17,7 @@ type UserRes struct {
 	Role     string             `json:"role"`
 }
 
+//go:generate mockery --name UserRepository
 type UserRepository interface {
 	Save(user User) (User, error)
 	Update(username string, user User) (User, error)
@@ -25,4 +26,18 @@ type UserRepository interface {
 	FindAll() []User
 	Delete(username string) error
 	DeleteAll() error
+}
+
+//go:generate mockery --name UserUsecase
+type UserUsecase interface {
+	PromoteUser(username string) (UserRes, error)
+	Delete(username string) error
+	DeleteAll() error
+	FindAll() []UserRes
+	FindByUsername(username string) (UserRes, bool)
+	FindUser(id string) (UserRes, error)
+	FindUserByUsername(username string) (UserRes, error)
+	CreateUser(user User) (UserRes, error)
+	Login(username string, password string) (string, error)
+	Update(username string, user UserRes) (UserRes, error)
 }

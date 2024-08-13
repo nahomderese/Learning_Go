@@ -41,17 +41,17 @@ func main() {
 	defer disconnect(client)
 
 	// Repositories
-	taskRepo := repositories.NewMongoTaskRepository(task_collection)
-	userRepo := repositories.NewMongoUserRepository(user_collection)
+	taskRepo := repositories.NewTaskRepository(task_collection)
+	userRepo := repositories.NewUserRepository(user_collection)
 
 	// Usecases
 	taskUsecase := usecase.NewTaskUseCase(taskRepo)
 	userUsecase := usecase.NewUserUseCase(userRepo)
 
 	// Handlers (Routers)
-	taskHandler := &controllers.TaskController{TaskUsecase: *taskUsecase, UserUsecase: *userUsecase}
-	userHandler := &controllers.UserController{UserUsecase: *userUsecase}
-	authHandler := &controllers.AuthController{UserUsecase: *userUsecase}
+	taskHandler := &controllers.TaskController{TaskUsecase: taskUsecase, UserUsecase: userUsecase}
+	userHandler := &controllers.UserController{UserUsecase: userUsecase}
+	authHandler := &controllers.AuthController{UserUsecase: userUsecase}
 
 	// Routes
 	taskRoutes := r.Group("tasks")

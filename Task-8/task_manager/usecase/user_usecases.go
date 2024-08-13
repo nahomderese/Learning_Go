@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
+	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/infrastructure"
 )
 
 // TaskUseCase is a struct that defines the usecases for the task entity
@@ -13,7 +14,7 @@ type UserUseCase struct {
 }
 
 // NewTaskUseCase is a function that returns a new TaskUseCase
-func NewUserUseCase(userRepo domain.UserRepository) *UserUseCase {
+func NewUserUseCase(userRepo domain.UserRepository) domain.UserUsecase {
 	return &UserUseCase{UserRepo: userRepo}
 }
 
@@ -117,6 +118,7 @@ func (u *UserUseCase) FindUser(id string) (domain.UserRes, error) {
 
 }
 
+// FindUserByUsername implements UserRepository.
 func (u *UserUseCase) FindUserByUsername(username string) (domain.UserRes, error) {
 
 	user, exist := u.UserRepo.FindByUsername(username)
@@ -134,6 +136,7 @@ func (u *UserUseCase) FindUserByUsername(username string) (domain.UserRes, error
 	return userRes, nil
 }
 
+// CreateUser implements UserRepository.
 func (u *UserUseCase) CreateUser(user domain.User) (domain.UserRes, error) {
 
 	user, err := u.UserRepo.Save(user)
@@ -167,5 +170,32 @@ func (u *UserUseCase) Update(username string, user domain.UserRes) (domain.UserR
 	}
 
 	return userRes, nil
+
+}
+
+// Login implements UserRepository.
+func (u *UserUseCase) Login(username string, password string) (string, error) {
+
+	userInDB, exists := u.UserRepo.FindByUsername(username)
+
+	if !exists {
+		return "", errors.New("user not found")
+	}
+
+	// compare password
+	err := infrastructure.ComparePasswords(userInDB.Password, password)
+
+	if err != nil {
+		return "", errors.New("invalid password " + err.Error())
+	}
+
+	// generate token
+	token, err := infrastructure.GenerateToken(userInDB.Username, userInDB.ID.Hex())
+
+	if err != nil {
+		return "", errors.New("error generating token")
+	}
+
+	return token, nil
 
 }

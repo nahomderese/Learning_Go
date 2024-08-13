@@ -16,9 +16,18 @@ type Task struct {
 	UserId      string             `bson:"user_id,omitempty" json:"user_id"`
 }
 
+//go:generate mockery --name TaskRepository
 type TaskRepository interface {
 	Save(c context.Context, task Task) (Task, error)
 	FindByID(c context.Context, id primitive.ObjectID) (Task, error)
 	FindAll(c context.Context, user User) []Task
 	Delete(c context.Context, id primitive.ObjectID) error
+}
+
+//go:generate mockery --name TaskUsecase
+type TaskUsecase interface {
+	Delete(c context.Context, id primitive.ObjectID) error
+	FindAll(c context.Context, user User) []Task
+	FindByID(c context.Context, id primitive.ObjectID) (Task, error)
+	Save(c context.Context, task Task) (Task, error)
 }

@@ -7,21 +7,18 @@ import (
 	"log"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
+	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/infrastructure"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type MongoTaskRepository struct {
-	collection *mongo.Collection
-}
-
-type MysqlTaskRepository struct {
-	collection *mongo.Collection
+type TaskRepository struct {
+	collection infrastructure.MongoCollection
 }
 
 // Delete implements TaskRepository.
-func (repo *MongoTaskRepository) Delete(c context.Context, id primitive.ObjectID) error {
+func (repo *TaskRepository) Delete(c context.Context, id primitive.ObjectID) error {
 
 	result, _ := repo.collection.DeleteOne(c, bson.M{"_id": id})
 
@@ -33,7 +30,7 @@ func (repo *MongoTaskRepository) Delete(c context.Context, id primitive.ObjectID
 }
 
 // FindAll implements TaskRepository.
-func (repo *MongoTaskRepository) FindAll(c context.Context, user domain.User) []domain.Task {
+func (repo *TaskRepository) FindAll(c context.Context, user domain.User) []domain.Task {
 
 	query := bson.D{}
 
@@ -56,7 +53,7 @@ func (repo *MongoTaskRepository) FindAll(c context.Context, user domain.User) []
 }
 
 // FindByID implements TaskRepository.
-func (repo *MongoTaskRepository) FindByID(c context.Context, id primitive.ObjectID) (domain.Task, error) {
+func (repo *TaskRepository) FindByID(c context.Context, id primitive.ObjectID) (domain.Task, error) {
 
 	var task domain.Task
 	err := repo.collection.FindOne(c, bson.M{"_id": id}).Decode(&task)
@@ -73,7 +70,7 @@ func (repo *MongoTaskRepository) FindByID(c context.Context, id primitive.Object
 }
 
 // Save implements TaskRepository.
-func (repo *MongoTaskRepository) Save(c context.Context, task domain.Task) (domain.Task, error) {
+func (repo *TaskRepository) Save(c context.Context, task domain.Task) (domain.Task, error) {
 
 	InsertedTask, err := repo.collection.InsertOne(context.TODO(), task)
 
@@ -87,6 +84,6 @@ func (repo *MongoTaskRepository) Save(c context.Context, task domain.Task) (doma
 
 // Constructor functions
 
-func NewMongoTaskRepository(collection *mongo.Collection) domain.TaskRepository {
-	return &MongoTaskRepository{collection}
+func NewTaskRepository(collection infrastructure.MongoCollection) domain.TaskRepository {
+	return &TaskRepository{collection}
 }
