@@ -30,7 +30,7 @@ func (repo *TaskRepository) Delete(c context.Context, id primitive.ObjectID) err
 }
 
 // FindAll implements TaskRepository.
-func (repo *TaskRepository) FindAll(c context.Context, user domain.User) []domain.Task {
+func (repo *TaskRepository) FindAll(c context.Context, user domain.User) ([]domain.Task, error) {
 
 	query := bson.D{}
 
@@ -46,10 +46,10 @@ func (repo *TaskRepository) FindAll(c context.Context, user domain.User) []domai
 
 	var tasks []domain.Task = make([]domain.Task, 0)
 	if err = cursor.All(c, &tasks); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return tasks
+	return tasks, nil
 }
 
 // FindByID implements TaskRepository.
