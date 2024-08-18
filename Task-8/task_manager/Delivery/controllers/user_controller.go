@@ -19,6 +19,10 @@ type UserController struct {
 	UserUsecase domain.UserUsecase
 }
 
+func NewUserHandlers(userUsecase domain.UserUsecase) UserHandlers {
+	return &UserController{UserUsecase: userUsecase}
+}
+
 func (ctrl *UserController) GetAllUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		users := ctrl.UserUsecase.FindAll()
@@ -95,7 +99,7 @@ func (ctrl *UserController) DeleteUser() gin.HandlerFunc {
 
 		userData, _ := c.Get("user")
 
-		if username != userData.(*domain.User).Username {
+		if username != userData.(domain.User).Username {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 			return
 		}

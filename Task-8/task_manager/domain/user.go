@@ -39,5 +39,6 @@ type UserUsecase interface {
 	FindUserByUsername(username string) (UserRes, error)
 	CreateUser(user User) (UserRes, error)
 	Login(username string, password string) (string, error)
+	Signup(username string, password string) (UserRes, error)
 	Update(username string, user UserRes) (UserRes, error)
 }

@@ -22,6 +22,10 @@ type TaskController struct {
 	UserUsecase domain.UserUsecase
 }
 
+func NewTaskHandlers(taskUsecase domain.TaskUsecase, userUsecase domain.UserUsecase) TaskHandlers {
+	return &TaskController{TaskUsecase: taskUsecase, UserUsecase: userUsecase}
+}
+
 func (ctrl *TaskController) GetAllTasks() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := c.MustGet("user").(domain.User)
@@ -61,8 +65,13 @@ func (ctrl *TaskController) UpdateTask() gin.HandlerFunc {
 		}
 
 		c.BindJSON(&task)
-		ctrl.TaskUsecase.Save(c, task)
-		c.JSON(200, task)
+		newTask, err := ctrl.TaskUsecase.Save(c, task)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(200, newTask)
 	}
 }
 

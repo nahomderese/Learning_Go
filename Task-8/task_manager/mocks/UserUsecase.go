@@ -236,6 +236,34 @@ func (_m *UserUsecase) PromoteUser(username string) (domain.UserRes, error) {
 	return r0, r1
 }
 
+// Signup provides a mock function with given fields: username, password
+func (_m *UserUsecase) Signup(username string, password string) (domain.UserRes, error) {
+	ret := _m.Called(username, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Signup")
+	}
+
+	var r0 domain.UserRes
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (domain.UserRes, error)); ok {
+		return rf(username, password)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) domain.UserRes); ok {
+		r0 = rf(username, password)
+	} else {
+		r0 = ret.Get(0).(domain.UserRes)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(username, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Update provides a mock function with given fields: username, user
 func (_m *UserUsecase) Update(username string, user domain.UserRes) (domain.UserRes, error) {
 	ret := _m.Called(username, user)

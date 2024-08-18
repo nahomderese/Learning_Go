@@ -35,7 +35,7 @@ func (_m *TaskRepository) Delete(c context.Context, id primitive.ObjectID) error
 }
 
 // FindAll provides a mock function with given fields: c, user
-func (_m *TaskRepository) FindAll(c context.Context, user domain.User) []domain.Task {
+func (_m *TaskRepository) FindAll(c context.Context, user domain.User) ([]domain.Task, error) {
 	ret := _m.Called(c, user)
 
 	if len(ret) == 0 {
@@ -43,6 +43,10 @@ func (_m *TaskRepository) FindAll(c context.Context, user domain.User) []domain.
 	}
 
 	var r0 []domain.Task
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, domain.User) ([]domain.Task, error)); ok {
+		return rf(c, user)
+	}
 	if rf, ok := ret.Get(0).(func(context.Context, domain.User) []domain.Task); ok {
 		r0 = rf(c, user)
 	} else {
@@ -51,7 +55,13 @@ func (_m *TaskRepository) FindAll(c context.Context, user domain.User) []domain.
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, domain.User) error); ok {
+		r1 = rf(c, user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // FindByID provides a mock function with given fields: c, id

@@ -199,3 +199,45 @@ func (u *UserUseCase) Login(username string, password string) (string, error) {
 	return token, nil
 
 }
+
+// Login implements UserRepository.
+func (u *UserUseCase) Signup(username string, password string) (domain.UserRes, error) {
+
+	// hash password
+	hash, err := infrastructure.HashPassword(password)
+
+	if err != nil {
+		return domain.UserRes{}, errors.New("error hashing password")
+	}
+
+	// if no users in the db, create an admin user
+	users := u.FindAll()
+
+	role := "regular"
+	if len(users) == 0 {
+		role = "admin"
+	}
+
+	// check if user already exists
+	_, exists := u.FindByUsername(username)
+
+	if exists {
+		return domain.UserRes{}, errors.New("Username already exists")
+	}
+
+	userData := domain.User{Username: username, Password: string(hash), Role: role}
+	newUser, error := u.CreateUser(userData)
+
+	res := domain.UserRes{
+		ID:       newUser.ID,
+		Username: newUser.Username,
+		Role:     newUser.Role,
+	}
+
+	if error != nil {
+		return domain.UserRes{}, errors.New("error creating user")
+	}
+
+	return res, nil
+
+}
