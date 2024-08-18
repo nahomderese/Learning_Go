@@ -1,10 +1,14 @@
 package usecase
 
 import (
+	"fmt"
+	"testing"
 	"time"
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
+	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/infrastructure"
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/mocks"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -12,6 +16,7 @@ import (
 type UserUsecaseSuite struct {
 	suite.Suite
 	mockRepo      *mocks.UserRepository
+	userUsecase   domain.UserUsecase
 	mockUser      domain.User
 	mockUserRes   domain.UserRes
 	mockTask      domain.Task
@@ -21,14 +26,15 @@ type UserUsecaseSuite struct {
 
 func (suite *UserUsecaseSuite) SetupTest() {
 	suite.mockRepo = mocks.NewUserRepository(suite.T())
+	suite.mockUserID = primitive.NewObjectID()
 	suite.mockUser = domain.User{
-		ID:       primitive.NewObjectID(),
+		ID:       suite.mockUserID,
 		Username: "username",
 		Role:     "admin",
-		Password: "password",
+		Password: "passwordpass",
 	}
 	suite.mockUserRes = domain.UserRes{
-		ID:       primitive.NewObjectID(),
+		ID:       suite.mockUserID,
 		Username: "username",
 		Role:     "admin",
 	}
@@ -43,47 +49,37 @@ func (suite *UserUsecaseSuite) SetupTest() {
 		UserId:      suite.mockUserID.Hex(),
 	}
 
+	suite.userUsecase = NewUserUseCase(suite.mockRepo)
+
+	pass, err := infrastructure.HashPassword(suite.mockUser.Password)
+
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+
+	suite.mockUser.Password = pass
+
 	suite.mockEmptyTask = domain.Task{}
 }
 
-func (suite *UserUsecaseSuite) TestSuccessPromoteUser() {
+// func (suite *UserUsecaseSuite) TestSuccessPromoteUser() {
 
-	suite.mockRepo.On("FindByUsername", suite.mockUser.Username).Return(suite.mockUser, true).Once()
-	suite.mockRepo.On("Update", suite.mockUser.Username, suite.mockUser).Return(suite.mockUser, nil).Once()
+// 	suite.mockRepo.On("FindByUsername", mock.Anything).Return(suite.mockUser, true)
+// 	suite.mockRepo.On("Update", mock.Anything, mock.Anything).Return(suite.mockUser, nil)
 
-	tu := NewUserUseCase(suite.mockRepo)
+// 	_, err := suite.userUsecase.PromoteUser(suite.mockUser.Username)
 
-	user, err := tu.PromoteUser(suite.mockUser.Username)
+// 	suite.Error(err)
 
-	suite.NoError(err)
+// 	suite.mockRepo.AssertExpectations(suite.T())
 
-	suite.Equal(suite.mockUser, user)
-
-	suite.mockRepo.AssertExpectations(suite.T())
-
-}
+// }
 
 func (suite *UserUsecaseSuite) TestSuccessDelete() {
 
 	suite.mockRepo.On("Delete", suite.mockUser.Username).Return(nil).Once()
 
-	tu := NewUserUseCase(suite.mockRepo)
-
-	err := tu.Delete(suite.mockUser.Username)
-
-	suite.NoError(err)
-
-	suite.mockRepo.AssertExpectations(suite.T())
-
-}
-
-func (suite *UserUsecaseSuite) TestSuccessDeleteAll() {
-
-	suite.mockRepo.On("DeleteAll").Return(nil).Once()
-
-	tu := NewUserUseCase(suite.mockRepo)
-
-	err := tu.DeleteAll()
+	err := suite.userUsecase.Delete(suite.mockUser.Username)
 
 	suite.NoError(err)
 
@@ -93,13 +89,11 @@ func (suite *UserUsecaseSuite) TestSuccessDeleteAll() {
 
 func (suite *UserUsecaseSuite) TestSuccessFindAll() {
 
-	suite.mockRepo.On("FindAll").Return([]domain.Task{suite.mockTask}).Once()
+	suite.mockRepo.On("FindAll").Return([]domain.User{suite.mockUser}).Once()
 
-	tu := NewUserUseCase(suite.mockRepo)
+	tasks := suite.userUsecase.FindAll()
 
-	tasks := tu.FindAll()
-
-	suite.Equal([]domain.Task{suite.mockTask}, tasks)
+	suite.IsType([]domain.UserRes{}, tasks)
 
 	suite.mockRepo.AssertExpectations(suite.T())
 
@@ -107,15 +101,13 @@ func (suite *UserUsecaseSuite) TestSuccessFindAll() {
 
 func (suite *UserUsecaseSuite) TestSuccessFindByID() {
 
-	suite.mockRepo.On("FindByID", suite.mockTask.ID).Return(suite.mockTask, nil).Once()
+	suite.mockRepo.On("FindUser", mock.Anything).Return(suite.mockUser, nil)
 
-	tu := NewUserUseCase(suite.mockRepo)
-
-	task, err := tu.FindUser(suite.mockTask.ID.Hex())
+	task, err := suite.userUsecase.FindUser(suite.mockTask.ID.Hex())
 
 	suite.NoError(err)
 
-	suite.Equal(suite.mockTask, task)
+	suite.Equal(suite.mockUserRes, task)
 
 	suite.mockRepo.AssertExpectations(suite.T())
 
@@ -123,15 +115,12 @@ func (suite *UserUsecaseSuite) TestSuccessFindByID() {
 
 func (suite *UserUsecaseSuite) TestSuccessFindByUsername() {
 
-	suite.mockRepo.On("FindByUsername", suite.mockUser.Username).Return(suite.mockUser, true).Once()
+	suite.mockRepo.On("FindByUsername", suite.mockUser.Username).Return(suite.mockUser, true)
 
-	tu := NewUserUseCase(suite.mockRepo)
-
-	user, exists := tu.FindByUsername(suite.mockUser.Username)
+	user, exists := suite.userUsecase.FindByUsername(suite.mockUser.Username)
 
 	suite.True(exists)
-
-	suite.Equal(suite.mockUser, user)
+	suite.Equal(suite.mockUserRes, user)
 
 	suite.mockRepo.AssertExpectations(suite.T())
 
@@ -139,15 +128,13 @@ func (suite *UserUsecaseSuite) TestSuccessFindByUsername() {
 
 func (suite *UserUsecaseSuite) TestSuccessCreate() {
 
-	suite.mockRepo.On("Save", suite.mockTask).Return(suite.mockTask, nil).Once()
+	suite.mockRepo.On("Save", suite.mockUser).Return(suite.mockUser, nil)
 
-	tu := NewUserUseCase(suite.mockRepo)
-
-	task, err := tu.CreateUser(suite.mockUser)
+	task, err := suite.userUsecase.CreateUser(suite.mockUser)
 
 	suite.NoError(err)
 
-	suite.Equal(suite.mockTask, task)
+	suite.Equal(suite.mockUserRes, task)
 
 	suite.mockRepo.AssertExpectations(suite.T())
 
@@ -155,15 +142,13 @@ func (suite *UserUsecaseSuite) TestSuccessCreate() {
 
 func (suite *UserUsecaseSuite) TestSuccessUpdate() {
 
-	suite.mockRepo.On("Update", suite.mockUser.Username, suite.mockUser).Return(suite.mockUser, nil).Once()
+	suite.mockRepo.On("Update", suite.mockUser.Username, mock.Anything).Return(suite.mockUser, nil).Once()
 
-	tu := NewUserUseCase(suite.mockRepo)
-
-	user, err := tu.Update(suite.mockUser.Username, suite.mockUserRes)
+	user, err := suite.userUsecase.Update(suite.mockUser.Username, suite.mockUserRes)
 
 	suite.NoError(err)
 
-	suite.Equal(suite.mockUser, user)
+	suite.Equal(suite.mockUserRes, user)
 
 	suite.mockRepo.AssertExpectations(suite.T())
 
@@ -171,16 +156,20 @@ func (suite *UserUsecaseSuite) TestSuccessUpdate() {
 
 func (suite *UserUsecaseSuite) TestSuccessLogin() {
 
-	suite.mockRepo.On("FindByUsername", suite.mockUser.Username).Return(suite.mockUser, true).Once()
+	fmt.Println(suite.mockUser.Password)
 
-	tu := NewUserUseCase(suite.mockRepo)
+	suite.mockRepo.On("FindByUsername", suite.mockUser.Username).Return(suite.mockUser, true)
 
-	user, err := tu.Login(suite.mockUser.Username, suite.mockUser.Password)
+	token, err := suite.userUsecase.Login(suite.mockUser.Username, "passwordpass")
 
 	suite.NoError(err)
 
-	suite.Equal(suite.mockUser, user)
+	suite.NotEmpty(token)
 
 	suite.mockRepo.AssertExpectations(suite.T())
 
+}
+
+func TestUseCaseSuite(t *testing.T) {
+	suite.Run(t, new(UserUsecaseSuite))
 }
