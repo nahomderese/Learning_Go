@@ -7,6 +7,7 @@ import (
 
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/domain"
 	"github.com/Nahom-Derese/Learning_Go/Task-8/task-manager/mocks"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -43,7 +44,7 @@ func (suite *TaskUsecaseSuite) SetupTest() {
 
 func (suite *TaskUsecaseSuite) TestSuccessCreate() {
 
-	suite.mockRepo.On("Save", suite.mockTask).Return(suite.mockTask, nil).Once()
+	suite.mockRepo.On("Save", mock.Anything, mock.Anything).Return(suite.mockTask, nil).Once()
 
 	tu := NewTaskUseCase(suite.mockRepo)
 
@@ -58,7 +59,7 @@ func (suite *TaskUsecaseSuite) TestSuccessCreate() {
 }
 
 func (suite *TaskUsecaseSuite) TestSuccessGetAll() {
-	suite.mockRepo.On("GetAll").Return([]domain.Task{suite.mockTask}, nil).Once()
+	suite.mockRepo.On("FindAll", mock.Anything, mock.Anything).Return([]domain.Task{suite.mockTask}, nil).Once()
 
 	tu := NewTaskUseCase(suite.mockRepo)
 
@@ -72,7 +73,7 @@ func (suite *TaskUsecaseSuite) TestSuccessGetAll() {
 }
 
 func (suite *TaskUsecaseSuite) TestSuccessGetByID() {
-	suite.mockRepo.On("GetByID", suite.mockTask.ID).Return(suite.mockTask, nil).Once()
+	suite.mockRepo.On("FindByID", mock.Anything, mock.Anything).Return(suite.mockTask, nil).Once()
 
 	tu := NewTaskUseCase(suite.mockRepo)
 
@@ -86,7 +87,7 @@ func (suite *TaskUsecaseSuite) TestSuccessGetByID() {
 }
 
 func (suite *TaskUsecaseSuite) TestSuccessDelete() {
-	suite.mockRepo.On("Delete", suite.mockTask.ID).Return(nil).Once()
+	suite.mockRepo.On("Delete", mock.Anything, mock.Anything).Return(nil).Once()
 
 	tu := NewTaskUseCase(suite.mockRepo)
 
