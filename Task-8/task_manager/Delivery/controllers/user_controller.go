@@ -99,7 +99,7 @@ func (ctrl *UserController) DeleteUser() gin.HandlerFunc {
 
 		userData, _ := c.Get("user")
 
-		if username != userData.(*domain.User).Username {
+		if username != userData.(domain.User).Username {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 			return
 		}
