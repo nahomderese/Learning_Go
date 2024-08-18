@@ -65,8 +65,13 @@ func (ctrl *TaskController) UpdateTask() gin.HandlerFunc {
 		}
 
 		c.BindJSON(&task)
-		ctrl.TaskUsecase.Save(c, task)
-		c.JSON(200, task)
+		newTask, err := ctrl.TaskUsecase.Save(c, task)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(200, newTask)
 	}
 }
 
